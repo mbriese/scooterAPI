@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scooter Rental App</title>
+    
+    <!-- Leaflet CSS for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🛴 Scooter Rental</h1>
+            <p class="subtitle">Find and reserve scooters near you</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel - Controls -->
+            <div class="left-panel">
+                <!-- View All Section -->
+                <div class="card">
+                    <h2>📍 Available Scooters</h2>
+                    <button id="viewAllBtn" class="btn btn-primary">View All Available</button>
+                    <div id="scooterList" class="scooter-list"></div>
+                </div>
+
+                <!-- Search Section -->
+                <div class="card">
+                    <h2>🔍 Search Nearby</h2>
+                    <form id="searchForm">
+                        <div class="form-group">
+                            <label for="searchLat">Latitude:</label>
+                            <input type="number" id="searchLat" step="any" placeholder="e.g., 40.7128" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="searchLng">Longitude:</label>
+                            <input type="number" id="searchLng" step="any" placeholder="e.g., -74.0060" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="searchRadius">Radius (meters):</label>
+                            <input type="number" id="searchRadius" value="5000" min="100" max="50000" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        <button type="button" id="useLocationBtn" class="btn btn-secondary">Use My Location</button>
+                    </form>
+                </div>
+
+                <!-- Reserve Section -->
+                <div class="card">
+                    <h2>🔒 Reserve Scooter</h2>
+                    <form id="reserveForm">
+                        <div class="form-group">
+                            <label for="reserveId">Scooter ID:</label>
+                            <input type="text" id="reserveId" placeholder="e.g., 14" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Reserve Now</button>
+                    </form>
+                </div>
+
+                <!-- End Reservation Section -->
+                <div class="card">
+                    <h2>🏁 End Reservation</h2>
+                    <form id="endForm">
+                        <div class="form-group">
+                            <label for="endId">Scooter ID:</label>
+                            <input type="text" id="endId" placeholder="e.g., 14" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endLat">End Latitude:</label>
+                            <input type="number" id="endLat" step="any" placeholder="e.g., 40.7128" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endLng">End Longitude:</label>
+                            <input type="number" id="endLng" step="any" placeholder="e.g., -74.0060" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger">End Reservation</button>
+                        <button type="button" id="useEndLocationBtn" class="btn btn-secondary">Use My Location</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Panel - Map -->
+            <div class="right-panel">
+                <div class="card map-container">
+                    <div id="map"></div>
+                </div>
+                <div id="status" class="status-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
+
+
+

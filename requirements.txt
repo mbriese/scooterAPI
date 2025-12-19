@@ -1,8 +1,10 @@
 Flask==1.0.2
+Flask-CORS==3.0.10
 geographiclib==1.49
 geopy==1.18.1
 gunicorn==19.9.0
 Jinja2==2.10
+pymongo==4.6.1
 requests==2.21.0
 six==1.11.0
 tabulate==0.8.2
