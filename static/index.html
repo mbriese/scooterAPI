@@ -12,12 +12,132 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content auth-modal">
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active">
+                <h2>Welcome Back! 👋</h2>
+                <p class="auth-subtitle">Sign in to rent scooters</p>
+                
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+                <div id="loginError" class="auth-error"></div>
+            </form>
+            
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form">
+                <h2>Join Us! 🛴</h2>
+                <p class="auth-subtitle">Create an account to start riding</p>
+                
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" placeholder="Min 6 characters" minlength="6" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Account</button>
+                <div id="registerError" class="auth-error"></div>
+            </form>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <h1>🛴 Scooter Rental</h1>
-            <p class="subtitle">Find and reserve scooters near you</p>
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>🛴 Scooter Rental</h1>
+                    <p class="subtitle">Find and reserve scooters near you</p>
+                </div>
+                <div class="header-right">
+                    <!-- User Info (shown when logged in) -->
+                    <div id="userInfo" class="user-info hidden">
+                        <span id="userName" class="user-name"></span>
+                        <span id="userRole" class="user-role"></span>
+                        <button id="logoutBtn" class="btn btn-sm btn-secondary">Logout</button>
+                    </div>
+                    <!-- Login Button (shown when not logged in) -->
+                    <button id="showLoginBtn" class="btn btn-sm btn-light hidden">Login / Register</button>
+                </div>
+            </div>
         </header>
+
+        <!-- Admin Panel (shown only for admins) -->
+        <div id="adminPanel" class="admin-panel hidden">
+            <div class="admin-header">
+                <h2>👑 Admin Dashboard</h2>
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-panel="users">Users</button>
+                    <button class="admin-tab" data-panel="fleet">Fleet Management</button>
+                </div>
+            </div>
+            
+            <!-- Users Panel -->
+            <div id="usersPanel" class="admin-content active">
+                <div class="admin-toolbar">
+                    <button id="refreshUsersBtn" class="btn btn-sm btn-secondary">🔄 Refresh</button>
+                </div>
+                <div id="usersList" class="users-list">
+                    <div class="loading-text">Loading users...</div>
+                </div>
+            </div>
+            
+            <!-- Fleet Panel -->
+            <div id="fleetPanel" class="admin-content">
+                <div class="admin-toolbar">
+                    <button id="showAddScooterBtn" class="btn btn-sm btn-success">+ Add Scooter</button>
+                    <button id="refreshFleetBtn" class="btn btn-sm btn-secondary">🔄 Refresh</button>
+                </div>
+                
+                <!-- Add Scooter Form (hidden by default) -->
+                <div id="addScooterForm" class="add-scooter-form hidden">
+                    <h3>Add New Scooter</h3>
+                    <form id="newScooterForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="newScooterId">Scooter ID</label>
+                                <input type="text" id="newScooterId" placeholder="e.g., SCT-001" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="newScooterLat">Latitude</label>
+                                <input type="number" id="newScooterLat" step="any" placeholder="40.7128" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="newScooterLng">Longitude</label>
+                                <input type="number" id="newScooterLng" step="any" placeholder="-74.0060" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success">Add Scooter</button>
+                            <button type="button" id="cancelAddScooter" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="fleetList" class="fleet-list">
+                    <div class="loading-text">Loading fleet...</div>
+                </div>
+            </div>
+        </div>
 
         <!-- Main Content -->
         <div class="main-content">
@@ -51,9 +171,12 @@
                     </form>
                 </div>
 
-                <!-- Reserve Section -->
-                <div class="card">
+                <!-- Reserve Section (requires login) -->
+                <div id="reserveSection" class="card renter-feature">
                     <h2>🔒 Reserve Scooter</h2>
+                    <div class="login-prompt hidden">
+                        <p>Please <a href="#" class="login-link">login</a> to reserve scooters</p>
+                    </div>
                     <form id="reserveForm">
                         <div class="form-group">
                             <label for="reserveId">Scooter ID:</label>
@@ -63,9 +186,12 @@
                     </form>
                 </div>
 
-                <!-- End Reservation Section -->
-                <div class="card">
+                <!-- End Reservation Section (requires login) -->
+                <div id="endSection" class="card renter-feature">
                     <h2>🏁 End Reservation</h2>
+                    <div class="login-prompt hidden">
+                        <p>Please <a href="#" class="login-link">login</a> to end reservations</p>
+                    </div>
                     <form id="endForm">
                         <div class="form-group">
                             <label for="endId">Scooter ID:</label>
@@ -102,6 +228,3 @@
     <script src="/static/app.js"></script>
 </body>
 </html>
-
-
-
