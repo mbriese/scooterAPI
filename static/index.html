@@ -150,25 +150,134 @@
                     <div id="scooterList" class="scooter-list"></div>
                 </div>
 
-                <!-- Search Section -->
-                <div class="card">
-                    <h2>🔍 Search Nearby</h2>
-                    <form id="searchForm">
-                        <div class="form-group">
-                            <label for="searchLat">Latitude:</label>
-                            <input type="number" id="searchLat" step="any" placeholder="e.g., 40.7128" required>
+                <!-- Unified Search Card with Tabs -->
+                <div class="card search-card">
+                    <h2>🔍 Find Scooters</h2>
+                    
+                    <!-- Search Tabs -->
+                    <div class="search-tabs">
+                        <button class="search-tab active" data-tab="nearme">
+                            <span class="tab-icon">🎯</span>
+                            <span class="tab-label">Near Me</span>
+                        </button>
+                        <button class="search-tab" data-tab="address">
+                            <span class="tab-icon">🏙️</span>
+                            <span class="tab-label">Address</span>
+                        </button>
+                        <button class="search-tab" data-tab="region">
+                            <span class="tab-icon">🗺️</span>
+                            <span class="tab-label">Region</span>
+                        </button>
+                        <button class="search-tab" data-tab="coords">
+                            <span class="tab-icon">📍</span>
+                            <span class="tab-label">Coords</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Tab Content: Near Me -->
+                    <div id="nearmeTab" class="search-tab-content active">
+                        <p class="tab-description">Find scooters at your current location</p>
+                        <button id="findNearMeBtn" class="btn btn-primary btn-large">
+                            <span class="btn-icon">🎯</span> Find Near Me
+                        </button>
+                        <div class="radius-selector">
+                            <label>Radius:</label>
+                            <div class="radius-options">
+                                <button type="button" class="radius-btn" data-radius="500">500m</button>
+                                <button type="button" class="radius-btn active" data-radius="1000">1km</button>
+                                <button type="button" class="radius-btn" data-radius="2000">2km</button>
+                                <button type="button" class="radius-btn" data-radius="5000">5km</button>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <!-- Tab Content: Address -->
+                    <div id="addressTab" class="search-tab-content">
+                        <p class="tab-description">Search by city, address, or landmark</p>
+                        <form id="addressSearchForm">
+                            <div class="form-group">
+                                <div class="search-input-wrapper">
+                                    <input type="text" id="addressInput" placeholder="e.g., Times Square, NYC" autocomplete="off">
+                                    <span class="search-icon">🔍</span>
+                                </div>
+                                <div id="addressSuggestions" class="suggestions-list hidden"></div>
+                            </div>
+                            <div class="form-group compact">
+                                <label>Radius:</label>
+                                <input type="number" id="addressRadius" value="2000" min="100" max="50000">
+                                <span class="input-suffix">m</span>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </form>
+                    </div>
+                    
+                    <!-- Tab Content: Region -->
+                    <div id="regionTab" class="search-tab-content">
+                        <p class="tab-description">Jump to popular cities</p>
                         <div class="form-group">
-                            <label for="searchLng">Longitude:</label>
-                            <input type="number" id="searchLng" step="any" placeholder="e.g., -74.0060" required>
+                            <select id="regionSelect" class="region-dropdown">
+                                <option value="">-- Select a City --</option>
+                                <optgroup label="🇺🇸 United States">
+                                    <option value="40.7128,-74.0060">New York City</option>
+                                    <option value="34.0522,-118.2437">Los Angeles</option>
+                                    <option value="41.8781,-87.6298">Chicago</option>
+                                    <option value="29.7604,-95.3698">Houston</option>
+                                    <option value="33.4484,-112.0740">Phoenix</option>
+                                    <option value="37.7749,-122.4194">San Francisco</option>
+                                    <option value="47.6062,-122.3321">Seattle</option>
+                                    <option value="25.7617,-80.1918">Miami</option>
+                                    <option value="39.7392,-104.9903">Denver</option>
+                                    <option value="30.2672,-97.7431">Austin</option>
+                                </optgroup>
+                                <optgroup label="🇪🇺 Europe">
+                                    <option value="51.5074,-0.1278">London</option>
+                                    <option value="48.8566,2.3522">Paris</option>
+                                    <option value="52.5200,13.4050">Berlin</option>
+                                    <option value="41.9028,12.4964">Rome</option>
+                                    <option value="52.3676,4.9041">Amsterdam</option>
+                                    <option value="40.4168,-3.7038">Madrid</option>
+                                </optgroup>
+                                <optgroup label="🌏 Asia Pacific">
+                                    <option value="35.6762,139.6503">Tokyo</option>
+                                    <option value="22.3193,114.1694">Hong Kong</option>
+                                    <option value="1.3521,103.8198">Singapore</option>
+                                    <option value="-33.8688,151.2093">Sydney</option>
+                                </optgroup>
+                            </select>
                         </div>
-                        <div class="form-group">
-                            <label for="searchRadius">Radius (meters):</label>
-                            <input type="number" id="searchRadius" value="5000" min="100" max="50000" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Search</button>
-                        <button type="button" id="useLocationBtn" class="btn btn-secondary">Use My Location</button>
-                    </form>
+                        <button id="goToRegionBtn" class="btn btn-primary">Go to City</button>
+                    </div>
+                    
+                    <!-- Tab Content: Coordinates -->
+                    <div id="coordsTab" class="search-tab-content">
+                        <p class="tab-description">Search by exact coordinates</p>
+                        <form id="searchForm">
+                            <div class="form-row-compact">
+                                <div class="form-group compact">
+                                    <label>Lat:</label>
+                                    <input type="number" id="searchLat" step="any" placeholder="40.7128">
+                                </div>
+                                <div class="form-group compact">
+                                    <label>Lng:</label>
+                                    <input type="number" id="searchLng" step="any" placeholder="-74.0060">
+                                </div>
+                            </div>
+                            <div class="form-group compact">
+                                <label>Radius:</label>
+                                <input type="number" id="searchRadius" value="5000" min="100" max="50000">
+                                <span class="input-suffix">m</span>
+                            </div>
+                            <div class="btn-row">
+                                <button type="submit" class="btn btn-primary">Search</button>
+                                <button type="button" id="useLocationBtn" class="btn btn-secondary btn-icon-only" title="Use my location">📍</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Map Click Hint -->
+                    <div class="map-click-hint">
+                        <span>👆</span> Click map to search any area
+                    </div>
                 </div>
 
                 <!-- Reserve Section (requires login) -->

@@ -1,10 +1,14 @@
 // API Base URL
 const API_BASE = window.location.origin;
+const NOMINATIM_API = 'https://nominatim.openstreetmap.org';
 
 // App State
 let currentUser = null;
 let map;
 let markers = [];
+let searchRadius = 1000; // Default 1km
+let addressSearchTimeout = null;
+let clickSearchMarker = null;
 
 // ==================
 // AUTHENTICATION
@@ -546,12 +550,256 @@ function getUserLocation(callback) {
             },
             (error) => {
                 showStatus('Unable to get your location: ' + error.message, 'error');
-            }
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
         );
     } else {
         showStatus('Geolocation is not supported by your browser', 'error');
     }
 }
+
+// ==================
+// ENHANCED SEARCH FEATURES
+// ==================
+
+// One-click Find Near Me
+function findNearMe() {
+    showStatus('🎯 Finding scooters near you...', 'info');
+    
+    if (!navigator.geolocation) {
+        showStatus('Geolocation is not supported by your browser', 'error');
+        return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            showStatus(`📍 Location found! Searching within ${searchRadius}m...`, 'info');
+            
+            // Add user location marker
+            addUserLocationMarker(lat, lng);
+            
+            // Search for scooters
+            await searchScooters(lat, lng, searchRadius);
+        },
+        (error) => {
+            let errorMsg = 'Unable to get your location';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMsg = 'Location access denied. Please enable location permissions.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMsg = 'Location information unavailable.';
+                    break;
+                case error.TIMEOUT:
+                    errorMsg = 'Location request timed out.';
+                    break;
+            }
+            showStatus(errorMsg, 'error');
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+    );
+}
+
+// Add user location marker
+function addUserLocationMarker(lat, lng) {
+    const userIcon = L.divIcon({
+        html: `<div style="
+            background: linear-gradient(135deg, #00c851, #007e33);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 0 20px rgba(0, 200, 81, 0.6), 0 3px 10px rgba(0,0,0,0.4);
+            animation: pulse 2s infinite;
+        "></div>
+        <style>
+            @keyframes pulse {
+                0% { box-shadow: 0 0 20px rgba(0, 200, 81, 0.6), 0 3px 10px rgba(0,0,0,0.4); }
+                50% { box-shadow: 0 0 30px rgba(0, 200, 81, 0.9), 0 3px 10px rgba(0,0,0,0.4); }
+                100% { box-shadow: 0 0 20px rgba(0, 200, 81, 0.6), 0 3px 10px rgba(0,0,0,0.4); }
+            }
+        </style>`,
+        className: 'user-location-marker',
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+    });
+    
+    const userMarker = L.marker([lat, lng], { icon: userIcon })
+        .addTo(map)
+        .bindPopup('<div class="popup-title">📍 Your Location</div>');
+    markers.push(userMarker);
+}
+
+// Address Search with Geocoding (Nominatim)
+async function geocodeAddress(query) {
+    if (!query || query.length < 3) return [];
+    
+    try {
+        const response = await fetch(
+            `${NOMINATIM_API}/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`,
+            { headers: { 'Accept-Language': 'en' } }
+        );
+        
+        if (!response.ok) throw new Error('Geocoding failed');
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Geocoding error:', error);
+        return [];
+    }
+}
+
+function showAddressSuggestions(suggestions) {
+    const container = document.getElementById('addressSuggestions');
+    
+    if (!suggestions || suggestions.length === 0) {
+        container.classList.add('hidden');
+        return;
+    }
+    
+    container.innerHTML = suggestions.map(place => `
+        <div class="suggestion-item" data-lat="${place.lat}" data-lng="${place.lon}">
+            <div class="suggestion-name">${place.display_name.split(',')[0]}</div>
+            <div class="suggestion-detail">${place.display_name.split(',').slice(1, 3).join(',')}</div>
+        </div>
+    `).join('');
+    
+    container.classList.remove('hidden');
+    
+    // Add click handlers
+    container.querySelectorAll('.suggestion-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const lat = parseFloat(item.dataset.lat);
+            const lng = parseFloat(item.dataset.lng);
+            const name = item.querySelector('.suggestion-name').textContent;
+            
+            document.getElementById('addressInput').value = name;
+            container.classList.add('hidden');
+            
+            searchAtLocation(lat, lng, name);
+        });
+    });
+}
+
+async function searchAtLocation(lat, lng, locationName) {
+    const radius = parseInt(document.getElementById('addressRadius').value) || 2000;
+    
+    showStatus(`🔍 Searching near ${locationName}...`, 'info');
+    
+    // Clear and add location marker
+    clearMarkers();
+    
+    const locationIcon = L.divIcon({
+        html: `<div style="
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 3px 15px rgba(240, 147, 251, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        ">📍</div>`,
+        className: 'location-marker',
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+    });
+    
+    const locationMarker = L.marker([lat, lng], { icon: locationIcon })
+        .addTo(map)
+        .bindPopup(`<div class="popup-title">📍 ${locationName}</div>`);
+    markers.push(locationMarker);
+    
+    await searchScooters(lat, lng, radius);
+}
+
+// Region Quick Select
+function goToRegion() {
+    const select = document.getElementById('regionSelect');
+    const value = select.value;
+    
+    if (!value) {
+        showStatus('Please select a region', 'info');
+        return;
+    }
+    
+    const [lat, lng] = value.split(',').map(Number);
+    const regionName = select.options[select.selectedIndex].text;
+    
+    showStatus(`🗺️ Going to ${regionName}...`, 'info');
+    
+    map.setView([lat, lng], 12);
+    searchScooters(lat, lng, 5000); // 5km radius for regions
+}
+
+// Click on Map Search
+function enableMapClickSearch() {
+    map.on('click', onMapClick);
+}
+
+function onMapClick(e) {
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+    
+    // Remove previous click marker if exists
+    if (clickSearchMarker) {
+        map.removeLayer(clickSearchMarker);
+    }
+    
+    // Create click marker with search popup
+    const clickIcon = L.divIcon({
+        html: `<div style="
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+            cursor: pointer;
+        "></div>`,
+        className: 'click-search-marker',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+    });
+    
+    clickSearchMarker = L.marker([lat, lng], { icon: clickIcon })
+        .addTo(map)
+        .bindPopup(`
+            <div class="click-search-popup">
+                <h4>🔍 Search Here</h4>
+                <div class="popup-coords">📍 ${lat.toFixed(4)}, ${lng.toFixed(4)}</div>
+                <select class="click-search-radius-select" id="clickRadius">
+                    <option value="500">500m radius</option>
+                    <option value="1000" selected>1km radius</option>
+                    <option value="2000">2km radius</option>
+                    <option value="5000">5km radius</option>
+                </select>
+                <button class="popup-btn" onclick="searchFromMapClick(${lat}, ${lng})">
+                    Find Scooters Here
+                </button>
+            </div>
+        `, { closeButton: true })
+        .openPopup();
+}
+
+async function searchFromMapClick(lat, lng) {
+    const radiusSelect = document.getElementById('clickRadius');
+    const radius = radiusSelect ? parseInt(radiusSelect.value) : 1000;
+    
+    // Close popup
+    if (clickSearchMarker) {
+        clickSearchMarker.closePopup();
+    }
+    
+    showStatus(`🔍 Searching at clicked location...`, 'info');
+    await searchScooters(lat, lng, radius);
+}
+
 
 // ==================
 // EVENT LISTENERS
@@ -561,11 +809,95 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize map
     initMap();
     
+    // Enable click-on-map search
+    enableMapClickSearch();
+    
     // Check auth status
     checkAuthStatus();
     
     // Load all scooters
     viewAllScooters();
+    
+    // ==================
+    // SEARCH TABS
+    // ==================
+    
+    document.querySelectorAll('.search-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Update active tab
+            document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.search-tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
+        });
+    });
+    
+    // ==================
+    // ENHANCED SEARCH EVENT LISTENERS
+    // ==================
+    
+    // Find Near Me button
+    document.getElementById('findNearMeBtn').addEventListener('click', findNearMe);
+    
+    // Radius selector buttons
+    document.querySelectorAll('.radius-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.radius-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            searchRadius = parseInt(btn.dataset.radius);
+        });
+    });
+    
+    // Address search with debounce
+    const addressInput = document.getElementById('addressInput');
+    addressInput.addEventListener('input', (e) => {
+        clearTimeout(addressSearchTimeout);
+        const query = e.target.value.trim();
+        
+        if (query.length < 3) {
+            document.getElementById('addressSuggestions').classList.add('hidden');
+            return;
+        }
+        
+        document.getElementById('addressSuggestions').innerHTML = 
+            '<div class="suggestions-loading">Searching...</div>';
+        document.getElementById('addressSuggestions').classList.remove('hidden');
+        
+        addressSearchTimeout = setTimeout(async () => {
+            const suggestions = await geocodeAddress(query);
+            showAddressSuggestions(suggestions);
+        }, 300);
+    });
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-input-wrapper') && !e.target.closest('.suggestions-list')) {
+            document.getElementById('addressSuggestions').classList.add('hidden');
+        }
+    });
+    
+    // Address search form submit
+    document.getElementById('addressSearchForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = addressInput.value.trim();
+        if (!query) return;
+        
+        showStatus('🔍 Searching for location...', 'info');
+        const results = await geocodeAddress(query);
+        
+        if (results.length > 0) {
+            const place = results[0];
+            searchAtLocation(parseFloat(place.lat), parseFloat(place.lon), place.display_name.split(',')[0]);
+        } else {
+            showStatus('Location not found. Try a different search.', 'error');
+        }
+    });
+    
+    // Region select
+    document.getElementById('goToRegionBtn').addEventListener('click', goToRegion);
+    document.getElementById('regionSelect').addEventListener('change', (e) => {
+        if (e.target.value) goToRegion();
+    });
     
     // Auth modal tabs
     document.querySelectorAll('.auth-tab').forEach(tab => {
@@ -662,21 +994,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // View All button
     document.getElementById('viewAllBtn').addEventListener('click', viewAllScooters);
     
-    // Search form
+    // Advanced search form
     document.getElementById('searchForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        const lat = parseFloat(document.getElementById('searchLat').value);
-        const lng = parseFloat(document.getElementById('searchLng').value);
-        const radius = parseInt(document.getElementById('searchRadius').value);
+        const latVal = document.getElementById('searchLat').value;
+        const lngVal = document.getElementById('searchLng').value;
+        
+        if (!latVal || !lngVal) {
+            showStatus('Please enter both latitude and longitude', 'error');
+            return;
+        }
+        
+        const lat = parseFloat(latVal);
+        const lng = parseFloat(lngVal);
+        const radius = parseInt(document.getElementById('searchRadius').value) || 5000;
+        
+        if (isNaN(lat) || isNaN(lng)) {
+            showStatus('Invalid coordinates', 'error');
+            return;
+        }
+        
         searchScooters(lat, lng, radius);
     });
     
-    // Use location button for search
+    // Use location button for advanced search
     document.getElementById('useLocationBtn').addEventListener('click', () => {
         getUserLocation((lat, lng) => {
             document.getElementById('searchLat').value = lat.toFixed(6);
             document.getElementById('searchLng').value = lng.toFixed(6);
-            map.setView([lat, lng], 13);
+            showStatus('Coordinates filled! Click "Search Coordinates" to search.', 'success');
         });
     });
     
