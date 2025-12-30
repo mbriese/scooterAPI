@@ -39,56 +39,78 @@ async function loadPricingInfo() {
     }
 }
 
+// Store current rental data
+let currentRentalData = null;
+
 /**
  * Check for active rental and update UI
  */
 async function checkActiveRental() {
     if (!isLoggedIn()) {
-        hideActiveRentalBanner();
+        hideActiveRentalUI();
         return;
     }
     
     const result = await apiGet('/rentals/active');
     
     if (result.ok && result.data.has_active_rental) {
-        showActiveRentalBanner(result.data.rental, result.data.current_cost_estimate);
+        currentRentalData = result.data.rental;
+        showActiveRentalUI(result.data.rental, result.data.current_cost_estimate);
     } else {
-        hideActiveRentalBanner();
+        currentRentalData = null;
+        hideActiveRentalUI();
     }
 }
 
 /**
- * Show the active rental banner
+ * Show active rental UI in the My Rental panel
  */
-function showActiveRentalBanner(rental, costEstimate) {
-    const banner = document.getElementById('activeRentalBanner');
-    if (!banner) return;
+function showActiveRentalUI(rental, costEstimate) {
+    // Update the My Rental tab badge
+    const badge = document.getElementById('rentalBadge');
+    if (badge) badge.classList.remove('hidden');
     
-    document.getElementById('activeScooterId').textContent = rental.scooter_id;
+    // Hide "no rental" message, show active rental card
+    const noRentalMsg = document.getElementById('noRentalMessage');
+    const activeCard = document.getElementById('activeRentalCard');
+    if (noRentalMsg) noRentalMsg.classList.add('hidden');
+    if (activeCard) activeCard.classList.remove('hidden');
+    
+    // Update rental details
+    const scooterIdEl = document.getElementById('activeScooterId2');
+    if (scooterIdEl) scooterIdEl.textContent = `Scooter #${rental.scooter_id}`;
     
     const startTime = new Date(rental.start_time);
-    document.getElementById('activeStartTime').textContent = startTime.toLocaleTimeString();
     
-    updateActiveDuration(startTime);
-    document.getElementById('activeEstCost').textContent = `$${costEstimate.total_cost.toFixed(2)}`;
+    // Update duration and cost
+    updateActiveDurationDisplay(startTime);
+    const costEl = document.getElementById('activeEstCost2');
+    if (costEl) costEl.textContent = `$${costEstimate.total_cost.toFixed(2)}`;
     
-    banner.classList.remove('hidden');
+    // Show pickup location
+    const pickupEl = document.getElementById('pickupLocation');
+    if (pickupEl && rental.start_location) {
+        pickupEl.textContent = `${rental.start_location.lat.toFixed(4)}, ${rental.start_location.lng.toFixed(4)}`;
+    }
     
     // Start updating duration every second
     if (activeRentalInterval) clearInterval(activeRentalInterval);
     activeRentalInterval = setInterval(() => {
-        updateActiveDuration(startTime);
-        // Update cost estimate every 30 seconds
+        updateActiveDurationDisplay(startTime);
     }, 1000);
     
-    // Hide the reserve section when there's an active rental
-    document.getElementById('reserveSection').classList.add('hidden');
+    // Auto-switch to My Rental tab if user just started a rental
+    // (only if they're on the reserve panel)
+    const reservePanel = document.getElementById('reservePanel');
+    if (reservePanel && reservePanel.classList.contains('active')) {
+        switchToPanel('myrental');
+    }
 }
 
 /**
  * Update the active duration display
  */
-function updateActiveDuration(startTime) {
+function updateActiveDurationDisplay(startTime) {
     const now = new Date();
     const diffMs = now - startTime;
     const diffMins = Math.floor(diffMs / 60000);
@@ -102,24 +124,87 @@ function updateActiveDuration(startTime) {
         durationText = `${mins} min`;
     }
     
-    document.getElementById('activeDuration').textContent = durationText;
+    const durationEl = document.getElementById('activeDuration2');
+    if (durationEl) durationEl.textContent = durationText;
 }
 
 /**
- * Hide the active rental banner
+ * Hide active rental UI
  */
-function hideActiveRentalBanner() {
-    const banner = document.getElementById('activeRentalBanner');
-    if (banner) banner.classList.add('hidden');
+function hideActiveRentalUI() {
+    // Hide the tab badge
+    const badge = document.getElementById('rentalBadge');
+    if (badge) badge.classList.add('hidden');
+    
+    // Show "no rental" message, hide active rental card
+    const noRentalMsg = document.getElementById('noRentalMessage');
+    const activeCard = document.getElementById('activeRentalCard');
+    if (noRentalMsg) noRentalMsg.classList.remove('hidden');
+    if (activeCard) activeCard.classList.add('hidden');
     
     if (activeRentalInterval) {
         clearInterval(activeRentalInterval);
         activeRentalInterval = null;
     }
     
-    // Show reserve section when no active rental
-    const reserveSection = document.getElementById('reserveSection');
-    if (reserveSection) reserveSection.classList.remove('hidden');
+    currentRentalData = null;
+}
+
+/**
+ * Legacy function for backwards compatibility
+ */
+function hideActiveRentalBanner() {
+    hideActiveRentalUI();
+}
+
+/**
+ * Switch to a panel
+ */
+function switchToPanel(panelName) {
+    // Update tab buttons
+    document.querySelectorAll('.panel-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.panel === panelName);
+    });
+    
+    // Update panel content
+    document.querySelectorAll('.panel-content').forEach(panel => {
+        panel.classList.toggle('active', panel.id === panelName + 'Panel');
+    });
+}
+
+/**
+ * Return scooter to start location
+ */
+async function returnToStartLocation() {
+    if (!currentRentalData || !currentRentalData.start_location) {
+        showStatus('No active rental or pickup location found', 'error');
+        return;
+    }
+    
+    const rental = currentRentalData;
+    const startLoc = rental.start_location;
+    
+    showStatus('Ending rental and returning to pickup location...', 'info');
+    endReservation(rental.scooter_id, startLoc.lat, startLoc.lng);
+}
+
+/**
+ * End rental at user's current location
+ */
+function endAtMyLocation() {
+    if (!currentRentalData) {
+        showStatus('No active rental found', 'error');
+        return;
+    }
+    
+    getUserLocation(
+        (lat, lng) => {
+            endReservation(currentRentalData.scooter_id, lat, lng);
+        },
+        () => {
+            showStatus('Could not get your location. Please enter coordinates manually.', 'error');
+        }
+    );
 }
 
 /**
@@ -136,12 +221,15 @@ async function reserveScooter(scooterId) {
     const result = await apiGet(`/reservation/start?id=${scooterId}`);
     
     if (result.ok) {
-        const pricing = result.data.pricing;
         showStatus(`${result.data.msg}`, 'success');
         
         // Refresh scooter list and check for active rental
         viewAllScooters();
-        checkActiveRental();
+        await checkActiveRental();
+        
+        // Switch to My Rental tab to show the new rental
+        switchToPanel('myrental');
+        
         if (isAdmin()) loadFleet();
     } else {
         showStatus(result.error || 'Reservation failed', 'error');

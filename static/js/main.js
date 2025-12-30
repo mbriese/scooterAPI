@@ -296,15 +296,53 @@ document.addEventListener('DOMContentLoaded', () => {
         endReservation(scooterId, lat, lng);
     });
     
-    // End active rental button
-    document.getElementById('endActiveRentalBtn')?.addEventListener('click', () => {
-        endActiveRental();
+    // ==================
+    // PANEL TABS
+    // ==================
+    
+    document.querySelectorAll('.panel-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            switchToPanel(tab.dataset.panel);
+        });
     });
     
-    document.getElementById('useEndLocationBtn').addEventListener('click', () => {
+    // ==================
+    // END RENTAL BUTTONS
+    // ==================
+    
+    // Return to start location button
+    document.getElementById('returnToStartBtn')?.addEventListener('click', () => {
+        returnToStartLocation();
+    });
+    
+    // Use my location button
+    document.getElementById('useMyLocationBtn')?.addEventListener('click', () => {
+        endAtMyLocation();
+    });
+    
+    // Custom end location form
+    document.getElementById('customEndForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!currentRentalData) {
+            showStatus('No active rental found', 'error');
+            return;
+        }
+        const lat = parseFloat(document.getElementById('customEndLat').value);
+        const lng = parseFloat(document.getElementById('customEndLng').value);
+        if (isNaN(lat) || isNaN(lng)) {
+            showStatus('Please enter valid coordinates', 'error');
+            return;
+        }
+        endReservation(currentRentalData.scooter_id, lat, lng);
+    });
+    
+    // Legacy compatibility
+    document.getElementById('useEndLocationBtn')?.addEventListener('click', () => {
         getUserLocation((lat, lng) => {
-            document.getElementById('endLat').value = lat.toFixed(6);
-            document.getElementById('endLng').value = lng.toFixed(6);
+            const latEl = document.getElementById('endLat');
+            const lngEl = document.getElementById('endLng');
+            if (latEl) latEl.value = lat.toFixed(6);
+            if (lngEl) lngEl.value = lng.toFixed(6);
         });
     });
 });

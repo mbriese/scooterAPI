@@ -194,15 +194,33 @@
         <div class="main-content">
             <!-- Left Panel - Controls -->
             <div class="left-panel">
-                <!-- View All Section -->
-                <div class="card">
-                    <h2>📍 Available Scooters</h2>
-                    <div class="scooter-controls">
-                        <button id="viewAllBtn" class="btn btn-primary">View All Available</button>
-                        <button id="toggleCitiesBtn" onclick="toggleCityMarkers()">🏙️ Show Cities</button>
-                    </div>
-                    <div id="scooterList" class="scooter-list"></div>
+                <!-- Main Panel Tabs -->
+                <div class="panel-tabs">
+                    <button class="panel-tab active" data-panel="find">
+                        <span class="tab-icon">🔍</span>
+                        <span class="tab-text">Find</span>
+                    </button>
+                    <button class="panel-tab" data-panel="myrental" id="myRentalTab">
+                        <span class="tab-icon">🛴</span>
+                        <span class="tab-text">My Rental</span>
+                        <span class="rental-badge hidden" id="rentalBadge">1</span>
+                    </button>
+                    <button class="panel-tab" data-panel="reserve">
+                        <span class="tab-icon">🔒</span>
+                        <span class="tab-text">Reserve</span>
+                    </button>
                 </div>
+
+                <!-- Panel: Find Scooters -->
+                <div id="findPanel" class="panel-content active">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>📍 Available Scooters</h2>
+                            <button id="toggleCitiesBtn" class="btn-icon" onclick="toggleCityMarkers()" title="Show/Hide Cities">🏙️</button>
+                        </div>
+                        <button id="viewAllBtn" class="btn btn-primary btn-block">View All Available</button>
+                        <div id="scooterList" class="scooter-list"></div>
+                    </div>
 
                 <!-- Unified Search Card with Tabs -->
                 <div class="card search-card">
@@ -335,94 +353,123 @@
                 </div>
 
                 <!-- Pricing Info Card -->
-                <div class="card pricing-card">
-                    <h2>💰 Rental Pricing</h2>
-                    <div id="pricingInfo" class="pricing-grid">
-                        <div class="price-item">
-                            <span class="price-label">Unlock</span>
-                            <span class="price-value" id="priceUnlock">$1.00</span>
+                    <div class="card pricing-card compact">
+                        <h2>💰 Rental Pricing</h2>
+                        <div id="pricingInfo" class="pricing-grid">
+                            <div class="price-item">
+                                <span class="price-label">Unlock</span>
+                                <span class="price-value" id="priceUnlock">$1.00</span>
+                            </div>
+                            <div class="price-item">
+                                <span class="price-label">Hourly</span>
+                                <span class="price-value" id="priceHourly">$3.50/hr</span>
+                            </div>
+                            <div class="price-item">
+                                <span class="price-label">Daily</span>
+                                <span class="price-value" id="priceDaily">$25/day</span>
+                            </div>
+                            <div class="price-item">
+                                <span class="price-label">Weekly</span>
+                                <span class="price-value" id="priceWeekly">$99/wk</span>
+                            </div>
+                            <div class="price-item">
+                                <span class="price-label">Monthly</span>
+                                <span class="price-value" id="priceMonthly">$299/mo</span>
+                            </div>
                         </div>
-                        <div class="price-item">
-                            <span class="price-label">Hourly</span>
-                            <span class="price-value" id="priceHourly">$3.50/hr</span>
-                        </div>
-                        <div class="price-item">
-                            <span class="price-label">Daily</span>
-                            <span class="price-value" id="priceDaily">$25/day</span>
-                        </div>
-                        <div class="price-item">
-                            <span class="price-label">Weekly</span>
-                            <span class="price-value" id="priceWeekly">$99/wk</span>
-                        </div>
-                        <div class="price-item">
-                            <span class="price-label">Monthly</span>
-                            <span class="price-value" id="priceMonthly">$299/mo</span>
-                        </div>
+                        <p class="pricing-note">Best rate automatically applied!</p>
                     </div>
-                    <p class="pricing-note">Best rate automatically applied!</p>
                 </div>
 
-                <!-- Active Rental Banner (shown when user has active rental) -->
-                <div id="activeRentalBanner" class="card active-rental-card hidden">
-                    <h2>🛴 Active Rental</h2>
-                    <div class="active-rental-info">
-                        <div class="rental-detail">
-                            <span class="detail-label">Scooter:</span>
-                            <span class="detail-value" id="activeScooterId">-</span>
-                        </div>
-                        <div class="rental-detail">
-                            <span class="detail-label">Started:</span>
-                            <span class="detail-value" id="activeStartTime">-</span>
-                        </div>
-                        <div class="rental-detail">
-                            <span class="detail-label">Duration:</span>
-                            <span class="detail-value" id="activeDuration">-</span>
-                        </div>
-                        <div class="rental-detail highlight">
-                            <span class="detail-label">Est. Cost:</span>
-                            <span class="detail-value" id="activeEstCost">$0.00</span>
+                <!-- Panel: My Rental -->
+                <div id="myrentalPanel" class="panel-content">
+                    <!-- No Active Rental Message -->
+                    <div id="noRentalMessage" class="card">
+                        <div class="empty-rental-state">
+                            <span class="empty-icon">🛴</span>
+                            <h3>No Active Rental</h3>
+                            <p>You don't have any scooter rented right now.</p>
+                            <button class="btn btn-primary" onclick="switchToPanel('find')">Find a Scooter</button>
                         </div>
                     </div>
-                    <button id="endActiveRentalBtn" class="btn btn-warning">End Rental Now</button>
+
+                    <!-- Active Rental Card (shown when user has active rental) -->
+                    <div id="activeRentalCard" class="card active-rental-card hidden">
+                        <h2>🛴 Your Active Rental</h2>
+                        <div class="active-rental-details">
+                            <div class="rental-scooter-id">
+                                <span class="scooter-icon">🛴</span>
+                                <span id="activeScooterId2">Scooter #--</span>
+                            </div>
+                            <div class="rental-stats">
+                                <div class="stat-item">
+                                    <span class="stat-icon">⏱️</span>
+                                    <span class="stat-label">Duration</span>
+                                    <span class="stat-value" id="activeDuration2">--</span>
+                                </div>
+                                <div class="stat-item highlight">
+                                    <span class="stat-icon">💰</span>
+                                    <span class="stat-label">Est. Cost</span>
+                                    <span class="stat-value" id="activeEstCost2">$0.00</span>
+                                </div>
+                            </div>
+                            <div class="rental-pickup-info">
+                                <span class="info-label">📍 Picked up at:</span>
+                                <span class="info-value" id="pickupLocation">--</span>
+                            </div>
+                        </div>
+
+                        <div class="end-rental-section">
+                            <h3>🏁 End Your Rental</h3>
+                            <div class="end-rental-options">
+                                <button id="returnToStartBtn" class="btn btn-success btn-block">
+                                    <span class="btn-icon">🔄</span> Return to Pickup Location
+                                </button>
+                                <button id="useMyLocationBtn" class="btn btn-primary btn-block">
+                                    <span class="btn-icon">📍</span> Drop Off at My Location
+                                </button>
+                                <div class="divider-text">or enter custom location</div>
+                                <form id="customEndForm" class="custom-end-form">
+                                    <div class="form-row-compact">
+                                        <div class="form-group compact">
+                                            <input type="number" id="customEndLat" step="any" placeholder="Latitude">
+                                        </div>
+                                        <div class="form-group compact">
+                                            <input type="number" id="customEndLng" step="any" placeholder="Longitude">
+                                        </div>
+                                        <button type="submit" class="btn btn-secondary">End</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Reserve Section (requires login) -->
-                <div id="reserveSection" class="card renter-feature">
-                    <h2>🔒 Reserve Scooter</h2>
-                    <div class="login-prompt hidden">
-                        <p>Please <a href="#" class="login-link">login</a> to reserve scooters</p>
-                    </div>
-                    <form id="reserveForm">
-                        <div class="form-group">
-                            <label for="reserveId">Scooter ID:</label>
-                            <input type="text" id="reserveId" placeholder="e.g., 14" required>
+                <!-- Panel: Reserve -->
+                <div id="reservePanel" class="panel-content">
+                    <div class="card">
+                        <h2>🔒 Reserve a Scooter</h2>
+                        <div id="reserveLoginPrompt" class="login-prompt hidden">
+                            <p>Please <a href="#" class="login-link">login</a> to reserve scooters</p>
                         </div>
-                        <button type="submit" class="btn btn-success">Reserve Now</button>
-                    </form>
-                </div>
+                        <form id="reserveForm">
+                            <div class="form-group">
+                                <label for="reserveId">Scooter ID:</label>
+                                <input type="text" id="reserveId" placeholder="Enter scooter ID or click on map" required>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-block">Reserve This Scooter</button>
+                        </form>
+                        <p class="form-hint">💡 Tip: Click on a scooter marker on the map to reserve it directly!</p>
+                    </div>
 
-                <!-- End Reservation Section (requires login) -->
-                <div id="endSection" class="card renter-feature">
-                    <h2>🏁 End Reservation</h2>
-                    <div class="login-prompt hidden">
-                        <p>Please <a href="#" class="login-link">login</a> to end reservations</p>
+                    <!-- Legacy End Form (hidden, kept for compatibility) -->
+                    <div id="endSection" class="card renter-feature hidden">
+                        <form id="endForm">
+                            <input type="hidden" id="endId">
+                            <input type="hidden" id="endLat">
+                            <input type="hidden" id="endLng">
+                        </form>
                     </div>
-                    <form id="endForm">
-                        <div class="form-group">
-                            <label for="endId">Scooter ID:</label>
-                            <input type="text" id="endId" placeholder="e.g., 14" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="endLat">End Latitude:</label>
-                            <input type="number" id="endLat" step="any" placeholder="e.g., 40.7128" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="endLng">End Longitude:</label>
-                            <input type="number" id="endLng" step="any" placeholder="e.g., -74.0060" required>
-                        </div>
-                        <button type="submit" class="btn btn-danger">End Reservation</button>
-                        <button type="button" id="useEndLocationBtn" class="btn btn-secondary">Use My Location</button>
-                    </form>
                 </div>
             </div>
 
