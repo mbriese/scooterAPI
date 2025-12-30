@@ -60,19 +60,135 @@
         </div>
     </div>
 
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content profile-modal">
+            <div class="modal-header">
+                <h2>👤 My Profile</h2>
+                <button class="modal-close" onclick="hideProfileModal()">&times;</button>
+            </div>
+            
+            <div class="profile-tabs">
+                <button class="profile-tab active" data-tab="account">Account</button>
+                <button class="profile-tab" data-tab="payment">Payment</button>
+                <button class="profile-tab" data-tab="address">Address</button>
+            </div>
+            
+            <!-- Account Tab -->
+            <div id="accountTab" class="profile-tab-content active">
+                <div class="profile-info">
+                    <div class="info-row">
+                        <span class="info-label">Name</span>
+                        <span class="info-value" id="profileName">--</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value" id="profileEmail">--</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Member Since</span>
+                        <span class="info-value" id="profileCreated">--</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Tab -->
+            <div id="paymentTab" class="profile-tab-content">
+                <div id="paymentMethodDisplay" class="payment-method-card hidden">
+                    <div class="card-display">
+                        <span class="card-type-icon" id="cardTypeIcon">💳</span>
+                        <div class="card-details">
+                            <span class="card-number" id="cardNumberMasked">**** **** **** ****</span>
+                            <span class="card-info">
+                                <span id="cardType">Card</span> · Expires <span id="cardExpiry">--/--</span>
+                            </span>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-secondary" onclick="showAddCardForm()">Change Card</button>
+                </div>
+                
+                <div id="noPaymentMethod" class="no-payment-message">
+                    <span class="icon">💳</span>
+                    <p>No payment method on file</p>
+                    <button class="btn btn-primary" onclick="showAddCardForm()">Add Credit Card</button>
+                </div>
+                
+                <form id="addCardForm" class="add-card-form hidden">
+                    <h3>Add Credit Card</h3>
+                    <p class="form-note">🔒 This is a simulation - no real charges will be made</p>
+                    
+                    <div class="form-group">
+                        <label>Card Number</label>
+                        <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Expiry</label>
+                            <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+                        <div class="form-group">
+                            <label>CVV</label>
+                            <input type="text" id="cardCvv" placeholder="123" maxlength="4" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Cardholder Name</label>
+                        <input type="text" id="cardholderName" placeholder="JOHN DOE" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Save Card</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideAddCardForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Address Tab -->
+            <div id="addressTab" class="profile-tab-content">
+                <form id="addressForm">
+                    <div class="form-group">
+                        <label>Street Address</label>
+                        <input type="text" id="addressStreet" placeholder="123 Main St">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" id="addressCity" placeholder="City" required>
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" id="addressState" placeholder="ST" maxlength="2" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ZIP Code</label>
+                            <input type="text" id="addressZip" placeholder="12345">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="tel" id="addressPhone" placeholder="(555) 123-4567">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Address</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Header -->
         <header class="header">
             <div class="header-content">
                 <div class="header-left">
-                    <h1>🛴 Scooter Rental</h1>
-                    <p class="subtitle">Find and reserve scooters near you</p>
+            <h1>🛴 Scooter Rental</h1>
+            <p class="subtitle">Find and reserve scooters near you</p>
                 </div>
                 <div class="header-right">
                     <!-- User Info (shown when logged in) -->
                     <div id="userInfo" class="user-info hidden">
                         <span id="userName" class="user-name"></span>
                         <span id="userRole" class="user-role"></span>
+                        <button id="profileBtn" class="btn btn-sm btn-icon" title="My Profile">👤</button>
                         <button id="logoutBtn" class="btn btn-sm btn-secondary">Logout</button>
                     </div>
                     <!-- Login Button (shown when not logged in) -->
@@ -213,14 +329,14 @@
 
                 <!-- Panel: Find Scooters -->
                 <div id="findPanel" class="panel-content active">
-                    <div class="card">
+                <div class="card">
                         <div class="card-header">
-                            <h2>📍 Available Scooters</h2>
+                    <h2>📍 Available Scooters</h2>
                             <button id="toggleCitiesBtn" class="btn-icon" onclick="toggleCityMarkers()" title="Show/Hide Cities">🏙️</button>
                         </div>
                         <button id="viewAllBtn" class="btn btn-primary btn-block">View All Available</button>
-                        <div id="scooterList" class="scooter-list"></div>
-                    </div>
+                    <div id="scooterList" class="scooter-list"></div>
+                </div>
 
                 <!-- Unified Search Card with Tabs -->
                 <div class="card search-card">
@@ -267,19 +383,19 @@
                     <div id="addressTab" class="search-tab-content">
                         <p class="tab-description">Search by city, address, or landmark</p>
                         <form id="addressSearchForm">
-                            <div class="form-group">
+                        <div class="form-group">
                                 <div class="search-input-wrapper">
                                     <input type="text" id="addressInput" placeholder="e.g., Times Square, NYC" autocomplete="off">
                                     <span class="search-icon">🔍</span>
-                                </div>
+                        </div>
                                 <div id="addressSuggestions" class="suggestions-list hidden"></div>
-                            </div>
+                        </div>
                             <div class="form-group compact">
                                 <label>Radius:</label>
                                 <input type="number" id="addressRadius" value="2000" min="100" max="50000">
                                 <span class="input-suffix">m</span>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Search</button>
                         </form>
                     </div>
                     
@@ -343,9 +459,9 @@
                                 <button type="submit" class="btn btn-primary">Search</button>
                                 <button type="button" id="useLocationBtn" class="btn btn-secondary btn-icon-only" title="Use my location">📍</button>
                             </div>
-                        </form>
-                    </div>
-                    
+                    </form>
+                </div>
+
                     <!-- Map Click Hint -->
                     <div class="map-click-hint">
                         <span>👆</span> Click map to search any area
@@ -447,28 +563,28 @@
 
                 <!-- Panel: Reserve -->
                 <div id="reservePanel" class="panel-content">
-                    <div class="card">
+                <div class="card">
                         <h2>🔒 Reserve a Scooter</h2>
                         <div id="reserveLoginPrompt" class="login-prompt hidden">
                             <p>Please <a href="#" class="login-link">login</a> to reserve scooters</p>
                         </div>
-                        <form id="reserveForm">
-                            <div class="form-group">
-                                <label for="reserveId">Scooter ID:</label>
+                    <form id="reserveForm">
+                        <div class="form-group">
+                            <label for="reserveId">Scooter ID:</label>
                                 <input type="text" id="reserveId" placeholder="Enter scooter ID or click on map" required>
-                            </div>
+                        </div>
                             <button type="submit" class="btn btn-success btn-block">Reserve This Scooter</button>
-                        </form>
+                    </form>
                         <p class="form-hint">💡 Tip: Click on a scooter marker on the map to reserve it directly!</p>
-                    </div>
+                </div>
 
                     <!-- Legacy End Form (hidden, kept for compatibility) -->
                     <div id="endSection" class="card renter-feature hidden">
-                        <form id="endForm">
+                    <form id="endForm">
                             <input type="hidden" id="endId">
                             <input type="hidden" id="endLat">
                             <input type="hidden" id="endLng">
-                        </form>
+                    </form>
                     </div>
                 </div>
             </div>
@@ -494,6 +610,7 @@
     <script src="/static/js/map.js"></script>
     <script src="/static/js/search.js"></script>
     <script src="/static/js/scooters.js"></script>
+    <script src="/static/js/profile.js"></script>
     <script src="/static/js/admin.js"></script>
     <script src="/static/js/main.js"></script>
 </body>

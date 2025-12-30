@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     initMap();
     enableMapClickSearch();
+    initProfileEvents();
     checkAuthStatus();
     viewAllScooters();
     loadPricingInfo();

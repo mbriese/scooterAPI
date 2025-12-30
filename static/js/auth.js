@@ -68,6 +68,8 @@ async function logout() {
     setCurrentUser(null);
     updateUIForLoggedOutUser();
     hideActiveRentalBanner();
+    clearProfileForm(); // Clear cached profile data
+    hideProfileModal(); // Close profile modal if open
     showStatus('You have been logged out.', 'info');
 }
 

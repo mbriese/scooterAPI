@@ -1674,6 +1674,210 @@ body {
 }
 
 /* ===========================================
+   PROFILE MODAL
+   =========================================== */
+
+.profile-modal {
+    max-width: 500px;
+    padding: 0;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #00d9ff;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #8892b0;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f5576c;
+}
+
+.profile-tabs {
+    display: flex;
+    padding: 15px 25px 0;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-tab {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    color: #8892b0;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+    margin-bottom: -1px;
+}
+
+.profile-tab:hover {
+    color: #ccd6f6;
+}
+
+.profile-tab.active {
+    color: #00d9ff;
+    border-bottom-color: #00d9ff;
+}
+
+.profile-tab-content {
+    display: none;
+    padding: 25px;
+}
+
+.profile-tab-content.active {
+    display: block;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.info-label {
+    color: #8892b0;
+}
+
+.info-value {
+    color: #ccd6f6;
+    font-weight: 600;
+}
+
+/* Payment Card Display */
+.payment-method-card {
+    background: linear-gradient(135deg, #1a2744, #2d3a5a);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.card-display {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.card-type-icon {
+    font-size: 2.5em;
+}
+
+.card-details {
+    flex: 1;
+}
+
+.card-number {
+    display: block;
+    font-size: 1.2em;
+    font-family: 'Courier New', monospace;
+    color: #ccd6f6;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+}
+
+.card-info {
+    color: #8892b0;
+    font-size: 0.9em;
+}
+
+.no-payment-message {
+    text-align: center;
+    padding: 30px;
+}
+
+.no-payment-message .icon {
+    font-size: 3em;
+    display: block;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.no-payment-message p {
+    color: #8892b0;
+    margin-bottom: 20px;
+}
+
+.add-card-form {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    margin-top: 15px;
+}
+
+.add-card-form h3 {
+    color: #00d9ff;
+    margin-bottom: 10px;
+}
+
+.form-note {
+    color: #43e97b;
+    font-size: 0.85em;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: rgba(67, 233, 123, 0.1);
+    border-radius: 8px;
+}
+
+/* Enhanced Receipt Styles */
+.receipt-simulation-badge {
+    display: inline-block;
+    background: rgba(245, 87, 108, 0.2);
+    color: #f5576c;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    margin-bottom: 15px;
+}
+
+.receipt-card-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.receipt-card-info .card-icon {
+    font-size: 1.5em;
+}
+
+.receipt-card-info .card-text {
+    color: #8892b0;
+}
+
+.receipt-card-info .card-text strong {
+    color: #ccd6f6;
+}
+
+/* ===========================================
    PRICING CARD
    =========================================== */
 
@@ -1802,16 +2006,39 @@ body {
 .receipt-header h3 {
     color: #43e97b;
     font-size: 1.5em;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.receipt-number {
+    color: #8892b0;
+    font-size: 0.85em;
+    margin-top: 8px;
 }
 
 .receipt-txn {
     color: #8892b0;
     font-size: 0.85em;
+    margin-top: 8px;
 }
 
 .receipt-body {
     margin-bottom: 20px;
+}
+
+.receipt-section {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.receipt-section.charges {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.receipt-section.payment {
+    border-bottom: none;
 }
 
 .receipt-row {
@@ -1819,6 +2046,21 @@ body {
     justify-content: space-between;
     padding: 8px 0;
     border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
+}
+
+.receipt-section .receipt-row:last-child {
+    border-bottom: none;
+}
+
+.receipt-disclaimer {
+    background: rgba(245, 87, 108, 0.15);
+    border: 1px solid rgba(245, 87, 108, 0.3);
+    color: #f5576c;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.8em;
+    text-align: center;
+    margin-top: 15px;
 }
 
 .receipt-row.total {

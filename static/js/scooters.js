@@ -298,7 +298,7 @@ async function endActiveRental() {
 }
 
 /**
- * Show rental receipt modal
+ * Show rental receipt modal with payment info
  */
 function showRentalReceipt(data) {
     // Create or get receipt modal
@@ -312,37 +312,67 @@ function showRentalReceipt(data) {
     
     const cost = data.cost;
     const duration = data.duration;
+    const transaction = data.transaction || {};
+    const receipt = data.receipt || {};
+    
+    // Get receipt details from response
+    const receiptNum = receipt.receipt_number || `RCP-${Date.now()}`;
+    const cardInfo = transaction.card || 'Card on file';
+    const authCode = transaction.authorization_code || 'N/A';
+    const txnId = transaction.id || data.transaction_id || 'N/A';
     
     modal.innerHTML = `
         <div class="modal-content rental-receipt">
             <div class="receipt-header">
                 <h3>✅ Rental Complete!</h3>
-                <div class="receipt-txn">Transaction: ${data.transaction_id}</div>
+                <span class="receipt-simulation-badge">🔬 SIMULATION</span>
+                <div class="receipt-number">Receipt #${receiptNum}</div>
             </div>
             <div class="receipt-body">
-                <div class="receipt-row">
-                    <span class="receipt-label">Scooter</span>
-                    <span class="receipt-value">${data.scooter_id}</span>
+                <div class="receipt-section">
+                    <div class="receipt-row">
+                        <span class="receipt-label">Scooter</span>
+                        <span class="receipt-value">${data.scooter_id}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Duration</span>
+                        <span class="receipt-value">${formatDuration(duration.minutes)}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Distance</span>
+                        <span class="receipt-value">${(data.distance_traveled_m / 1000).toFixed(2)} km</span>
+                    </div>
                 </div>
-                <div class="receipt-row">
-                    <span class="receipt-label">Duration</span>
-                    <span class="receipt-value">${formatDuration(duration.minutes)}</span>
+                
+                <div class="receipt-section charges">
+                    <div class="receipt-row">
+                        <span class="receipt-label">Unlock Fee</span>
+                        <span class="receipt-value">$${cost.unlock_fee.toFixed(2)}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Rental (${cost.pricing_tier})</span>
+                        <span class="receipt-value">$${cost.rental_fee.toFixed(2)}</span>
+                    </div>
+                    <div class="receipt-row total">
+                        <span class="receipt-label">Total Charged</span>
+                        <span class="receipt-value">$${cost.total.toFixed(2)}</span>
+                    </div>
                 </div>
-                <div class="receipt-row">
-                    <span class="receipt-label">Distance</span>
-                    <span class="receipt-value">${(data.distance_traveled_m / 1000).toFixed(2)} km</span>
+                
+                <div class="receipt-section payment">
+                    <div class="receipt-card-info">
+                        <span class="card-icon">💳</span>
+                        <div class="card-text">
+                            <strong>${cardInfo}</strong><br>
+                            Auth: ${authCode}
+                        </div>
+                    </div>
+                    <div class="receipt-txn">Transaction: ${txnId}</div>
                 </div>
-                <div class="receipt-row">
-                    <span class="receipt-label">Unlock Fee</span>
-                    <span class="receipt-value">$${cost.unlock_fee.toFixed(2)}</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="receipt-label">Rental (${cost.pricing_tier})</span>
-                    <span class="receipt-value">$${cost.rental_fee.toFixed(2)}</span>
-                </div>
-                <div class="receipt-row total">
-                    <span class="receipt-label">Total Charged</span>
-                    <span class="receipt-value">$${cost.total.toFixed(2)}</span>
+                
+                <div class="receipt-disclaimer">
+                    ⚠️ This is a simulated transaction for demonstration purposes only.
+                    No actual charges were made.
                 </div>
             </div>
             <button class="btn btn-primary" onclick="closeReceiptModal()">Done</button>

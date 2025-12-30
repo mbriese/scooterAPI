@@ -17,6 +17,7 @@ from models.database import init_mongodb
 from routes.auth import auth_bp, create_default_admin
 from routes.admin import admin_bp
 from routes.scooters import scooters_bp
+from routes.profile import profile_bp
 
 # ==================
 # APP INITIALIZATION
@@ -45,6 +46,7 @@ logger = logging.getLogger(__name__)
 app.register_blueprint(auth_bp)      # /auth/*
 app.register_blueprint(admin_bp)     # /admin/*
 app.register_blueprint(scooters_bp)  # /view_all_available, /search, /reservation/*
+app.register_blueprint(profile_bp)   # /profile/*
 
 
 # ==================

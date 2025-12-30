@@ -10,13 +10,14 @@ from flask import Blueprint, request, session
 from geopy.distance import distance as geodesic
 from pymongo import errors as mongo_errors
 
-from models.database import get_scooters_collection, get_rentals_collection
+from models.database import get_scooters_collection, get_rentals_collection, get_users_collection
 from utils.validators import validate_coordinates, validate_radius, validate_scooter_id
 from utils.responses import (
     success_response, list_response, validation_error,
     not_found_response, server_error_response
 )
 from utils.pricing import calculate_rental_cost, get_pricing_info
+from utils.payment import simulate_charge, generate_receipt
 from utils.auth import login_required
 from config import ROLE_RENTER
 
@@ -298,10 +299,39 @@ def end_reservation():
         
         logger.info(f"Rental cost for scooter {scooter_id}: ${cost_breakdown['total_cost']:.2f} ({cost_breakdown['pricing_tier']})")
         
-        # Generate transaction ID
-        txn_id = f"TXN-{uuid4().hex[:12].upper()}"
+        # Get user's payment method
+        users = get_users_collection()
+        user = users.find_one({"id": user_id}, {"_id": 0})
+        payment_method = user.get('payment_method') if user else None
         
-        # Update rental record
+        # Process payment (simulation)
+        transaction = simulate_charge(
+            amount=cost_breakdown['total_cost'],
+            payment_method=payment_method,
+            description=f"Scooter Rental - {scooter_id}"
+        )
+        
+        if not transaction['success']:
+            logger.warning(f"Payment failed for rental {rental_id}: {transaction.get('error')}")
+            # Even if payment fails, we'll complete the rental (in real app, might handle differently)
+            # For simulation, we'll just note it
+        
+        # Prepare rental data for receipt
+        rental_data = {
+            'id': rental_id,
+            'scooter_id': scooter_id,
+            'start_time': start_time.isoformat(),
+            'end_time': end_time.isoformat(),
+            'start_location': start_location,
+            'end_location': {'lat': end_lat, 'lng': end_lng},
+            'distance_traveled_m': round(distance_traveled),
+            'cost': cost_breakdown
+        }
+        
+        # Generate receipt
+        receipt = generate_receipt(rental_data, transaction, user or {})
+        
+        # Update rental record with payment and receipt info
         if rental:
             rentals.update_one(
                 {"id": rental_id},
@@ -311,7 +341,8 @@ def end_reservation():
                     "status": "completed",
                     "cost": cost_breakdown,
                     "distance_traveled_m": round(distance_traveled),
-                    "transaction_id": txn_id,
+                    "transaction": transaction,
+                    "receipt": receipt,
                     "completed_at": end_time.isoformat()
                 }}
             )
@@ -331,12 +362,18 @@ def end_reservation():
             }}
         )
         
-        logger.info(f"Reservation ended for scooter {scooter_id} by {user_email}, cost: ${cost_breakdown['total_cost']:.2f}, txn: {txn_id}")
+        logger.info(f"Reservation ended for scooter {scooter_id} by {user_email}, cost: ${cost_breakdown['total_cost']:.2f}, txn: {transaction.get('transaction_id')}")
         
         return success_response({
             'rental_id': rental_id,
             'scooter_id': scooter_id,
-            'transaction_id': txn_id,
+            'transaction': {
+                'id': transaction.get('transaction_id'),
+                'authorization_code': transaction.get('authorization_code'),
+                'status': transaction.get('status'),
+                'card': f"{transaction.get('card_type', 'Card')} ****{transaction.get('card_last_four', '****')}",
+                'is_simulation': True
+            },
             'duration': {
                 'minutes': cost_breakdown['duration_minutes'],
                 'hours': cost_breakdown['duration_hours'],
@@ -349,7 +386,8 @@ def end_reservation():
                 'total': cost_breakdown['total_cost'],
                 'pricing_tier': cost_breakdown['pricing_tier'],
                 'description': cost_breakdown['description']
-            }
+            },
+            'receipt': receipt
         }, f"Rental completed! Total charge: ${cost_breakdown['total_cost']:.2f}")
             
     except mongo_errors.PyMongoError as e:
