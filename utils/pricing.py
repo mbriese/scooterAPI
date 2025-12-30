@@ -187,3 +187,4 @@ def format_duration(minutes):
             months = days / 30
             return f"{months:.1f} months"
 
+

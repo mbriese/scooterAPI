@@ -204,6 +204,7 @@
                 <div class="admin-tabs">
                     <button class="admin-tab active" data-panel="users">Users</button>
                     <button class="admin-tab" data-panel="fleet">Fleet Management</button>
+                    <button class="admin-tab" data-panel="reports">📊 Reports</button>
                 </div>
             </div>
             
@@ -302,6 +303,114 @@
                 
                 <div id="fleetList" class="fleet-list">
                     <div class="loading-text">Loading fleet...</div>
+                </div>
+            </div>
+            
+            <!-- Reports Panel -->
+            <div id="reportsPanel" class="admin-content">
+                <div class="admin-toolbar">
+                    <button id="refreshReportsBtn" class="btn btn-sm btn-secondary">🔄 Refresh</button>
+                    <select id="reportPeriod" class="report-period-select">
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="365">Last year</option>
+                    </select>
+                </div>
+                
+                <!-- Revenue Summary Cards -->
+                <div class="revenue-cards">
+                    <div class="revenue-card today">
+                        <div class="revenue-label">Today</div>
+                        <div class="revenue-amount" id="revenueToday">$0.00</div>
+                        <div class="revenue-rentals"><span id="rentalsToday">0</span> rentals</div>
+                    </div>
+                    <div class="revenue-card week">
+                        <div class="revenue-label">This Week</div>
+                        <div class="revenue-amount" id="revenueWeek">$0.00</div>
+                        <div class="revenue-rentals"><span id="rentalsWeek">0</span> rentals</div>
+                    </div>
+                    <div class="revenue-card month">
+                        <div class="revenue-label">This Month</div>
+                        <div class="revenue-amount" id="revenueMonth">$0.00</div>
+                        <div class="revenue-rentals"><span id="rentalsMonth">0</span> rentals</div>
+                    </div>
+                    <div class="revenue-card alltime">
+                        <div class="revenue-label">💰 All-Time Revenue</div>
+                        <div class="revenue-amount large" id="revenueAllTime">$0.00</div>
+                        <div class="revenue-rentals"><span id="rentalsAllTime">0</span> total rentals</div>
+                    </div>
+                </div>
+                
+                <!-- Report Tabs -->
+                <div class="report-tabs">
+                    <button class="report-tab active" data-report="transactions">💳 Transactions</button>
+                    <button class="report-tab" data-report="rentals">🛴 Rental History</button>
+                    <button class="report-tab" data-report="topscooters">🏆 Top Scooters</button>
+                </div>
+                
+                <!-- Transactions Table -->
+                <div id="transactionsReport" class="report-content active">
+                    <div class="report-table-container">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Date/Time</th>
+                                    <th>Transaction ID</th>
+                                    <th>User</th>
+                                    <th>Scooter</th>
+                                    <th>Duration</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsTableBody">
+                                <tr><td colspan="7" class="loading-text">Loading transactions...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Rental History Table -->
+                <div id="rentalsReport" class="report-content">
+                    <div class="report-table-container">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>User</th>
+                                    <th>Scooter</th>
+                                    <th>Duration</th>
+                                    <th>Distance</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rentalsTableBody">
+                                <tr><td colspan="8" class="loading-text">Loading rental history...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Top Scooters Table -->
+                <div id="topscootersReport" class="report-content">
+                    <div class="report-table-container">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Scooter ID</th>
+                                    <th>Total Rentals</th>
+                                    <th>Total Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topScootersTableBody">
+                                <tr><td colspan="4" class="loading-text">Loading top performers...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -612,6 +721,7 @@
     <script src="/static/js/scooters.js"></script>
     <script src="/static/js/profile.js"></script>
     <script src="/static/js/admin.js"></script>
+    <script src="/static/js/reports.js"></script>
     <script src="/static/js/main.js"></script>
 </body>
 </html>

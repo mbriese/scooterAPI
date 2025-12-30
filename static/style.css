@@ -2084,3 +2084,224 @@ body {
     color: #ccd6f6;
     font-weight: 600;
 }
+
+/* ===========================================
+   ADMIN REPORTS
+   =========================================== */
+
+.report-period-select {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ccd6f6;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.revenue-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.revenue-card {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.revenue-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 217, 255, 0.3);
+}
+
+.revenue-card.today {
+    border-left: 3px solid #43e97b;
+}
+
+.revenue-card.week {
+    border-left: 3px solid #00d9ff;
+}
+
+.revenue-card.month {
+    border-left: 3px solid #f093fb;
+}
+
+.revenue-card.alltime {
+    background: linear-gradient(135deg, rgba(67, 233, 123, 0.15), rgba(0, 217, 255, 0.15));
+    border: 2px solid rgba(67, 233, 123, 0.3);
+    grid-column: span 1;
+}
+
+@media (min-width: 768px) {
+    .revenue-card.alltime {
+        grid-column: span 2;
+    }
+}
+
+.revenue-label {
+    color: #8892b0;
+    font-size: 0.85em;
+    margin-bottom: 8px;
+}
+
+.revenue-amount {
+    color: #ccd6f6;
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.revenue-amount.large {
+    font-size: 2.5em;
+    color: #43e97b;
+}
+
+.revenue-rentals {
+    color: #8892b0;
+    font-size: 0.85em;
+}
+
+.report-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+}
+
+.report-tab {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    color: #8892b0;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.report-tab:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #ccd6f6;
+}
+
+.report-tab.active {
+    background: rgba(0, 217, 255, 0.15);
+    color: #00d9ff;
+}
+
+.report-content {
+    display: none;
+}
+
+.report-content.active {
+    display: block;
+}
+
+.report-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.report-table th,
+.report-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.report-table th {
+    background: rgba(0, 0, 0, 0.3);
+    color: #8892b0;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    letter-spacing: 0.5px;
+}
+
+.report-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.report-table .date-cell {
+    white-space: nowrap;
+    color: #8892b0;
+}
+
+.report-table .txn-id {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+    color: #00d9ff;
+}
+
+.report-table .amount-cell {
+    font-weight: 600;
+    color: #43e97b;
+}
+
+.report-table .rank-cell {
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-badge.approved,
+.status-badge.completed {
+    background: rgba(67, 233, 123, 0.2);
+    color: #43e97b;
+}
+
+.status-badge.active {
+    background: rgba(0, 217, 255, 0.2);
+    color: #00d9ff;
+}
+
+.status-badge.pending {
+    background: rgba(240, 147, 251, 0.2);
+    color: #f093fb;
+}
+
+.sim-badge {
+    display: inline-block;
+    background: rgba(245, 87, 108, 0.2);
+    color: #f5576c;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.65em;
+    margin-left: 5px;
+    font-weight: 600;
+}
+
+.report-table .active-rental {
+    background: rgba(0, 217, 255, 0.05);
+}
+
+.empty-text,
+.error-text {
+    color: #8892b0;
+    text-align: center;
+    font-style: italic;
+}
+
+.error-text {
+    color: #f5576c;
+}

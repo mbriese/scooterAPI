@@ -230,3 +230,4 @@ def format_receipt_text(receipt):
     
     return "\n".join(lines)
 
+

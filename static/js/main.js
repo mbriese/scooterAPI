@@ -211,11 +211,19 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.admin-content').forEach(c => c.classList.remove('active'));
             tab.classList.add('active');
             document.getElementById(tab.dataset.panel + 'Panel').classList.add('active');
+            
+            // Load reports data when reports tab is clicked
+            if (tab.dataset.panel === 'reports') {
+                loadReportsData();
+            }
         });
     });
     
     document.getElementById('refreshUsersBtn').addEventListener('click', loadUsers);
     document.getElementById('refreshFleetBtn').addEventListener('click', loadFleet);
+    
+    // Initialize reports events
+    initReportsEvents();
     
     document.getElementById('showAddScooterBtn').addEventListener('click', () => {
         document.getElementById('addScooterForm').classList.toggle('hidden');

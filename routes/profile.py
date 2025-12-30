@@ -291,3 +291,4 @@ def get_payment_method():
         logger.error(f"Error getting payment method: {e}", exc_info=True)
         return server_error_response("Failed to get payment method")
 
+

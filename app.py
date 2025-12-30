@@ -18,6 +18,7 @@ from routes.auth import auth_bp, create_default_admin
 from routes.admin import admin_bp
 from routes.scooters import scooters_bp
 from routes.profile import profile_bp
+from routes.reports import reports_bp
 
 # ==================
 # APP INITIALIZATION
@@ -47,6 +48,7 @@ app.register_blueprint(auth_bp)      # /auth/*
 app.register_blueprint(admin_bp)     # /admin/*
 app.register_blueprint(scooters_bp)  # /view_all_available, /search, /reservation/*
 app.register_blueprint(profile_bp)   # /profile/*
+app.register_blueprint(reports_bp)   # /admin/reports/*
 
 
 # ==================
