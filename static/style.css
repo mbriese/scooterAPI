@@ -282,6 +282,87 @@ body {
     transform: translateX(5px);
 }
 
+.fleet-item.fleet-reserved {
+    border-left: 3px solid #f5576c;
+    opacity: 0.85;
+}
+
+/* Move Scooter Modal */
+.move-scooter-modal {
+    max-width: 450px;
+    padding: 25px;
+}
+
+.move-scooter-modal h2 {
+    color: #00d9ff;
+    margin-bottom: 8px;
+}
+
+.modal-subtitle {
+    color: #8892b0;
+    margin-bottom: 20px;
+}
+
+.move-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.move-tab {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
+    color: #8892b0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.move-tab:hover {
+    border-color: #00d9ff;
+    color: #00d9ff;
+}
+
+.move-tab.active {
+    background: rgba(0, 217, 255, 0.2);
+    border-color: #00d9ff;
+    color: #00d9ff;
+}
+
+.move-tab-content {
+    display: none;
+}
+
+.move-tab-content.active {
+    display: block;
+}
+
+.move-tab-content .form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.move-tab-content input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #00d9ff;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-actions .btn {
+    flex: 1;
+    margin-bottom: 0;
+}
+
 .user-details, .fleet-details {
     flex: 1;
 }
@@ -300,6 +381,48 @@ body {
 .user-actions, .fleet-actions {
     display: flex;
     gap: 8px;
+}
+
+/* Fleet Stats */
+.fleet-stats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.stat-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ccd6f6;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #8892b0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+}
+
+.stat-item.available .stat-value {
+    color: #00c851;
+}
+
+.stat-item.reserved .stat-value {
+    color: #f5576c;
 }
 
 /* Add Scooter Form */
@@ -326,6 +449,57 @@ body {
     display: flex;
     gap: 10px;
     margin-top: 15px;
+}
+
+/* Add Scooter Location Tabs */
+.add-location-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.add-loc-tab {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
+    color: #8892b0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9em;
+}
+
+.add-loc-tab:hover {
+    border-color: #00d9ff;
+    color: #00d9ff;
+}
+
+.add-loc-tab.active {
+    background: rgba(0, 217, 255, 0.2);
+    border-color: #00d9ff;
+    color: #00d9ff;
+}
+
+.add-loc-content {
+    display: none;
+}
+
+.add-loc-content.active {
+    display: block;
+}
+
+.add-loc-content .form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.add-loc-content input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #00d9ff;
 }
 
 /* Main Content Layout */
@@ -1087,4 +1261,134 @@ body {
         flex-direction: column;
         text-align: center;
     }
+}
+
+/* ===========================================
+   SCOOTER MARKER LABELS
+   =========================================== */
+
+.custom-marker-labeled {
+    background: transparent !important;
+    border: none !important;
+}
+
+.scooter-marker-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.scooter-marker-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    z-index: 2;
+}
+
+.scooter-marker-label {
+    position: absolute;
+    bottom: -18px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    z-index: 1;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* ===========================================
+   CITY MARKERS
+   =========================================== */
+
+.city-marker {
+    background: transparent !important;
+    border: none !important;
+}
+
+.city-marker-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.city-marker-pin {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    z-index: 2;
+}
+
+.city-marker-label {
+    position: absolute;
+    bottom: -16px;
+    padding: 2px 8px;
+    background: rgba(26, 26, 46, 0.9);
+    border: 1px solid;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    z-index: 1;
+}
+
+/* Toggle Cities Button */
+/* Scooter Controls Row */
+.scooter-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.scooter-controls .btn {
+    margin-bottom: 0;
+}
+
+#toggleCitiesBtn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #8892b0;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9em;
+}
+
+#toggleCitiesBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #00d9ff;
+    color: #00d9ff;
+}
+
+#toggleCitiesBtn.active {
+    background: rgba(0, 217, 255, 0.2);
+    border-color: #00d9ff;
+    color: #00d9ff;
+}
+
+/* Popup Region */
+.popup-region {
+    color: #8892b0;
+    font-size: 0.9em;
+    margin-top: 4px;
 }

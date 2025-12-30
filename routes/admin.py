@@ -74,10 +74,38 @@ def update_user_role(user_id):
         return server_error_response("Failed to update role")
 
 
-@admin_bp.route('/scooters', methods=['POST'])
+@admin_bp.route('/scooters', methods=['GET', 'POST'])
 @admin_required
-def add_scooter():
-    """Add a new scooter to the fleet (admin only)"""
+def manage_scooters():
+    """Get all scooters (GET) or add a new scooter (POST) - admin only"""
+    
+    if request.method == 'GET':
+        # Get all scooters in the fleet - both available and reserved
+        logger.info(f"Request received: GET /admin/scooters (admin: {session.get('email')})")
+        
+        try:
+            collection = get_scooters_collection()
+            all_scooters = list(collection.find({}, {'_id': 0}))
+            
+            # Calculate stats
+            total = len(all_scooters)
+            available = sum(1 for s in all_scooters if not s.get('is_reserved', False))
+            reserved = total - available
+            
+            return success_response({
+                'stats': {
+                    'total': total,
+                    'available': available,
+                    'reserved': reserved
+                },
+                'scooters': all_scooters
+            })
+            
+        except Exception as e:
+            logger.error(f"Error getting scooters: {e}", exc_info=True)
+            return server_error_response("Failed to get scooters")
+    
+    # POST - Add a new scooter
     logger.info(f"Request received: POST /admin/scooters (admin: {session.get('email')})")
     
     try:
@@ -118,6 +146,38 @@ def add_scooter():
     except Exception as e:
         logger.error(f"Error adding scooter: {e}", exc_info=True)
         return server_error_response("Failed to add scooter")
+
+
+@admin_bp.route('/scooters/<scooter_id>/release', methods=['PUT'])
+@admin_required
+def force_release_scooter(scooter_id):
+    """Force release a reserved scooter (admin only)"""
+    logger.info(f"Request received: PUT /admin/scooters/{scooter_id}/release (admin: {session.get('email')})")
+    
+    try:
+        collection = get_scooters_collection()
+        
+        scooter = collection.find_one({'id': scooter_id})
+        if not scooter:
+            return not_found_response("Scooter")
+        
+        if not scooter.get('is_reserved', False):
+            return validation_error("Scooter is not currently reserved")
+        
+        result = collection.update_one(
+            {'id': scooter_id},
+            {'$set': {'is_reserved': False}}
+        )
+        
+        if result.modified_count > 0:
+            logger.warning(f"Scooter {scooter_id} force released by admin {session.get('email')}")
+            return success_response(message=f"Scooter {scooter_id} has been released")
+        else:
+            return server_error_response("Failed to release scooter")
+        
+    except Exception as e:
+        logger.error(f"Error releasing scooter: {e}", exc_info=True)
+        return server_error_response("Failed to release scooter")
 
 
 @admin_bp.route('/scooters/<scooter_id>', methods=['DELETE'])

@@ -216,12 +216,55 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('addScooterForm').classList.add('hidden');
     });
     
+    // Add Scooter location tabs
+    document.querySelectorAll('.add-loc-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.add-loc-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.add-loc-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('add' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1) + 'Tab').classList.add('active');
+        });
+    });
+    
     document.getElementById('newScooterForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const id = document.getElementById('newScooterId').value;
-        const lat = parseFloat(document.getElementById('newScooterLat').value);
-        const lng = parseFloat(document.getElementById('newScooterLng').value);
-        addScooter(id, lat, lng);
+        
+        // Check which tab is active
+        const cityTabActive = document.getElementById('addCityTab').classList.contains('active');
+        
+        if (cityTabActive) {
+            // Add by city
+            const citySelect = document.getElementById('addScooterCity');
+            const cityName = citySelect.value;
+            
+            if (!cityName || !CITY_LOCATIONS[cityName]) {
+                showStatus('Please select a city', 'error');
+                return;
+            }
+            
+            let lat = CITY_LOCATIONS[cityName].lat;
+            let lng = CITY_LOCATIONS[cityName].lng;
+            
+            // Add random offset if checked
+            if (document.getElementById('addRandomOffset').checked) {
+                lat += (Math.random() - 0.5) * 0.01;
+                lng += (Math.random() - 0.5) * 0.01;
+            }
+            
+            addScooter(id, lat, lng);
+        } else {
+            // Add by coordinates
+            const lat = parseFloat(document.getElementById('newScooterLat').value);
+            const lng = parseFloat(document.getElementById('newScooterLng').value);
+            
+            if (isNaN(lat) || isNaN(lng)) {
+                showStatus('Please enter valid coordinates', 'error');
+                return;
+            }
+            
+            addScooter(id, lat, lng);
+        }
     });
     
     // ==================

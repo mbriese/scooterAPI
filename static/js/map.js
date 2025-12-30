@@ -28,7 +28,7 @@ function clearMarkers() {
 }
 
 /**
- * Add scooter markers to the map
+ * Add scooter markers to the map with labels
  */
 function addScooterMarkers(scooters) {
     clearMarkers();
@@ -41,17 +41,29 @@ function addScooterMarkers(scooters) {
     scooters.forEach(scooter => {
         const isReserved = scooter.is_reserved || false;
         const iconColor = isReserved ? '#f5576c' : '#00d9ff';
+        const statusText = isReserved ? '🔒' : '';
         
+        // Create icon with scooter ID label
         const icon = L.divIcon({
-            html: `<div style="background-color: ${iconColor}; width: 32px; height: 32px; border-radius: 50%; border: 3px solid white; box-shadow: 0 3px 10px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; font-size: 16px;">🛴</div>`,
-            className: 'custom-marker',
-            iconSize: [32, 32]
+            html: `
+                <div class="scooter-marker-container">
+                    <div class="scooter-marker-icon" style="background-color: ${iconColor};">
+                        🛴${statusText}
+                    </div>
+                    <div class="scooter-marker-label" style="background-color: ${iconColor};">
+                        ${scooter.id}
+                    </div>
+                </div>
+            `,
+            className: 'custom-marker-labeled',
+            iconSize: [60, 50],
+            iconAnchor: [30, 45]
         });
         
         const marker = L.marker([scooter.lat, scooter.lng], { icon })
             .addTo(map)
             .bindPopup(`
-                <div class="popup-title">Scooter ${scooter.id}</div>
+                <div class="popup-title">🛴 Scooter ${scooter.id}</div>
                 <div class="popup-coords">📍 ${scooter.lat.toFixed(4)}, ${scooter.lng.toFixed(4)}</div>
                 ${scooter.distance ? `<div class="popup-coords">📏 ${scooter.distance.toFixed(0)}m away</div>` : ''}
                 <div style="margin-top: 8px;">
@@ -72,6 +84,112 @@ function addScooterMarkers(scooters) {
         const group = L.featureGroup(markers);
         map.fitBounds(group.getBounds().pad(0.1));
     }
+}
+
+// City locations data for map display
+const MAP_CITIES = {
+    'New York City': { lat: 40.7128, lng: -74.0060, region: 'US' },
+    'Los Angeles': { lat: 34.0522, lng: -118.2437, region: 'US' },
+    'Chicago': { lat: 41.8781, lng: -87.6298, region: 'US' },
+    'Houston': { lat: 29.7604, lng: -95.3698, region: 'US' },
+    'Phoenix': { lat: 33.4484, lng: -112.0740, region: 'US' },
+    'San Francisco': { lat: 37.7749, lng: -122.4194, region: 'US' },
+    'Seattle': { lat: 47.6062, lng: -122.3321, region: 'US' },
+    'Miami': { lat: 25.7617, lng: -80.1918, region: 'US' },
+    'Denver': { lat: 39.7392, lng: -104.9903, region: 'US' },
+    'Austin': { lat: 30.2672, lng: -97.7431, region: 'US' },
+    'London': { lat: 51.5074, lng: -0.1278, region: 'EU' },
+    'Paris': { lat: 48.8566, lng: 2.3522, region: 'EU' },
+    'Berlin': { lat: 52.5200, lng: 13.4050, region: 'EU' },
+    'Rome': { lat: 41.9028, lng: 12.4964, region: 'EU' },
+    'Amsterdam': { lat: 52.3676, lng: 4.9041, region: 'EU' },
+    'Madrid': { lat: 40.4168, lng: -3.7038, region: 'EU' },
+    'Tokyo': { lat: 35.6762, lng: 139.6503, region: 'APAC' },
+    'Hong Kong': { lat: 22.3193, lng: 114.1694, region: 'APAC' },
+    'Singapore': { lat: 1.3521, lng: 103.8198, region: 'APAC' },
+    'Sydney': { lat: -33.8688, lng: 151.2093, region: 'APAC' }
+};
+
+let cityMarkersVisible = false;
+let cityMarkerLayer = null;
+
+/**
+ * Toggle city markers on the map
+ */
+function toggleCityMarkers() {
+    const map = getMap();
+    
+    if (cityMarkersVisible && cityMarkerLayer) {
+        map.removeLayer(cityMarkerLayer);
+        cityMarkersVisible = false;
+        updateCityToggleButton(false);
+    } else {
+        addCityMarkers();
+        cityMarkersVisible = true;
+        updateCityToggleButton(true);
+    }
+}
+
+/**
+ * Update the city toggle button state
+ */
+function updateCityToggleButton(isActive) {
+    const btn = document.getElementById('toggleCitiesBtn');
+    if (btn) {
+        btn.classList.toggle('active', isActive);
+        btn.textContent = isActive ? '🏙️ Hide Cities' : '🏙️ Show Cities';
+    }
+}
+
+/**
+ * Add city markers to the map
+ */
+function addCityMarkers() {
+    const map = getMap();
+    
+    // Remove existing city layer if any
+    if (cityMarkerLayer) {
+        map.removeLayer(cityMarkerLayer);
+    }
+    
+    // Create a layer group for city markers
+    cityMarkerLayer = L.layerGroup();
+    
+    Object.entries(MAP_CITIES).forEach(([cityName, city]) => {
+        const regionColors = {
+            'US': '#4facfe',
+            'EU': '#f093fb',
+            'APAC': '#43e97b'
+        };
+        const color = regionColors[city.region] || '#888';
+        
+        const cityIcon = L.divIcon({
+            html: `
+                <div class="city-marker-container">
+                    <div class="city-marker-pin" style="background: ${color};">
+                        🏙️
+                    </div>
+                    <div class="city-marker-label" style="border-color: ${color};">
+                        ${cityName}
+                    </div>
+                </div>
+            `,
+            className: 'city-marker',
+            iconSize: [100, 45],
+            iconAnchor: [50, 40]
+        });
+        
+        const cityMarker = L.marker([city.lat, city.lng], { icon: cityIcon })
+            .bindPopup(`
+                <div class="popup-title">🏙️ ${cityName}</div>
+                <div class="popup-coords">📍 ${city.lat.toFixed(4)}, ${city.lng.toFixed(4)}</div>
+                <div class="popup-region">Region: ${city.region === 'US' ? '🇺🇸 United States' : city.region === 'EU' ? '🇪🇺 Europe' : '🌏 Asia Pacific'}</div>
+            `);
+        
+        cityMarkerLayer.addLayer(cityMarker);
+    });
+    
+    cityMarkerLayer.addTo(map);
 }
 
 /**
