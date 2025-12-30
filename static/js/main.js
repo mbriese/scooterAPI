@@ -238,13 +238,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const citySelect = document.getElementById('addScooterCity');
             const cityName = citySelect.value;
             
-            if (!cityName || !CITY_LOCATIONS[cityName]) {
+            const cityData = getCityCoords(cityName);
+            if (!cityName || !cityData) {
                 showStatus('Please select a city', 'error');
                 return;
             }
             
-            let lat = CITY_LOCATIONS[cityName].lat;
-            let lng = CITY_LOCATIONS[cityName].lng;
+            let lat = cityData.lat;
+            let lng = cityData.lng;
             
             // Add random offset if checked
             if (document.getElementById('addRandomOffset').checked) {

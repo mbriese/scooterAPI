@@ -162,32 +162,7 @@ function displayFleet(scooters) {
     `).join('');
 }
 
-// City/Region data for moving scooters
-const CITY_LOCATIONS = {
-    // US Cities
-    'New York City, NY': { lat: 40.7128, lng: -74.0060 },
-    'Los Angeles, CA': { lat: 34.0522, lng: -118.2437 },
-    'Chicago, IL': { lat: 41.8781, lng: -87.6298 },
-    'Houston, TX': { lat: 29.7604, lng: -95.3698 },
-    'Phoenix, AZ': { lat: 33.4484, lng: -112.0740 },
-    'San Francisco, CA': { lat: 37.7749, lng: -122.4194 },
-    'Seattle, WA': { lat: 47.6062, lng: -122.3321 },
-    'Miami, FL': { lat: 25.7617, lng: -80.1918 },
-    'Denver, CO': { lat: 39.7392, lng: -104.9903 },
-    'Austin, TX': { lat: 30.2672, lng: -97.7431 },
-    // Europe
-    'London, UK': { lat: 51.5074, lng: -0.1278 },
-    'Paris, France': { lat: 48.8566, lng: 2.3522 },
-    'Berlin, Germany': { lat: 52.5200, lng: 13.4050 },
-    'Rome, Italy': { lat: 41.9028, lng: 12.4964 },
-    'Amsterdam, Netherlands': { lat: 52.3676, lng: 4.9041 },
-    'Madrid, Spain': { lat: 40.4168, lng: -3.7038 },
-    // Asia Pacific
-    'Tokyo, Japan': { lat: 35.6762, lng: 139.6503 },
-    'Hong Kong': { lat: 22.3193, lng: 114.1694 },
-    'Singapore': { lat: 1.3521, lng: 103.8198 },
-    'Sydney, Australia': { lat: -33.8688, lng: 151.2093 }
-};
+// Note: City data is now in state.js as CITIES constant (DRY)
 
 let moveScooterId = null;
 
@@ -324,13 +299,14 @@ async function confirmMoveScooter() {
         const citySelect = document.getElementById('moveCitySelect');
         const cityName = citySelect.value;
         
-        if (!cityName || !CITY_LOCATIONS[cityName]) {
+        const cityData = getCityCoords(cityName);
+        if (!cityName || !cityData) {
             showStatus('Please select a city', 'error');
             return;
         }
         
-        lat = CITY_LOCATIONS[cityName].lat;
-        lng = CITY_LOCATIONS[cityName].lng;
+        lat = cityData.lat;
+        lng = cityData.lng;
         
         // Add random offset if checked (within ~500m)
         if (document.getElementById('moveRandomOffset').checked) {

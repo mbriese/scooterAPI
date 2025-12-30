@@ -86,29 +86,7 @@ function addScooterMarkers(scooters) {
     }
 }
 
-// City locations data for map display
-const MAP_CITIES = {
-    'New York City': { lat: 40.7128, lng: -74.0060, region: 'US' },
-    'Los Angeles': { lat: 34.0522, lng: -118.2437, region: 'US' },
-    'Chicago': { lat: 41.8781, lng: -87.6298, region: 'US' },
-    'Houston': { lat: 29.7604, lng: -95.3698, region: 'US' },
-    'Phoenix': { lat: 33.4484, lng: -112.0740, region: 'US' },
-    'San Francisco': { lat: 37.7749, lng: -122.4194, region: 'US' },
-    'Seattle': { lat: 47.6062, lng: -122.3321, region: 'US' },
-    'Miami': { lat: 25.7617, lng: -80.1918, region: 'US' },
-    'Denver': { lat: 39.7392, lng: -104.9903, region: 'US' },
-    'Austin': { lat: 30.2672, lng: -97.7431, region: 'US' },
-    'London': { lat: 51.5074, lng: -0.1278, region: 'EU' },
-    'Paris': { lat: 48.8566, lng: 2.3522, region: 'EU' },
-    'Berlin': { lat: 52.5200, lng: 13.4050, region: 'EU' },
-    'Rome': { lat: 41.9028, lng: 12.4964, region: 'EU' },
-    'Amsterdam': { lat: 52.3676, lng: 4.9041, region: 'EU' },
-    'Madrid': { lat: 40.4168, lng: -3.7038, region: 'EU' },
-    'Tokyo': { lat: 35.6762, lng: 139.6503, region: 'APAC' },
-    'Hong Kong': { lat: 22.3193, lng: 114.1694, region: 'APAC' },
-    'Singapore': { lat: 1.3521, lng: 103.8198, region: 'APAC' },
-    'Sydney': { lat: -33.8688, lng: 151.2093, region: 'APAC' }
-};
+// Note: City data is now in state.js as CITIES constant (DRY)
 
 let cityMarkersVisible = false;
 let cityMarkerLayer = null;
@@ -155,13 +133,15 @@ function addCityMarkers() {
     // Create a layer group for city markers
     cityMarkerLayer = L.layerGroup();
     
-    Object.entries(MAP_CITIES).forEach(([cityName, city]) => {
+    // Use shared CITIES constant from state.js
+    Object.entries(CITIES).forEach(([fullName, city]) => {
         const regionColors = {
             'US': '#4facfe',
             'EU': '#f093fb',
             'APAC': '#43e97b'
         };
         const color = regionColors[city.region] || '#888';
+        const displayName = city.shortName || fullName;
         
         const cityIcon = L.divIcon({
             html: `
@@ -170,7 +150,7 @@ function addCityMarkers() {
                         🏙️
                     </div>
                     <div class="city-marker-label" style="border-color: ${color};">
-                        ${cityName}
+                        ${displayName}
                     </div>
                 </div>
             `,
@@ -181,7 +161,7 @@ function addCityMarkers() {
         
         const cityMarker = L.marker([city.lat, city.lng], { icon: cityIcon })
             .bindPopup(`
-                <div class="popup-title">🏙️ ${cityName}</div>
+                <div class="popup-title">🏙️ ${fullName}</div>
                 <div class="popup-coords">📍 ${city.lat.toFixed(4)}, ${city.lng.toFixed(4)}</div>
                 <div class="popup-region">Region: ${city.region === 'US' ? '🇺🇸 United States' : city.region === 'EU' ? '🇪🇺 Europe' : '🌏 Asia Pacific'}</div>
             `);
