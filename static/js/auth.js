@@ -28,6 +28,10 @@ async function login(email, password) {
         hideAuthModal();
         updateUIForLoggedInUser();
         showStatus(`Welcome back, ${result.data.user.name}!`, 'success');
+        // Check for active rental after login
+        checkActiveRental();
+        // Refresh scooter markers to show reserve buttons
+        viewAllScooters();
         return { success: true };
     } else {
         return { success: false, error: result.error };
@@ -45,6 +49,10 @@ async function register(name, email, password) {
         hideAuthModal();
         updateUIForLoggedInUser();
         showStatus(`Welcome, ${result.data.user.name}! Your account has been created.`, 'success');
+        // New users won't have active rentals, but check anyway for consistency
+        checkActiveRental();
+        // Refresh scooter markers to show reserve buttons
+        viewAllScooters();
         return { success: true };
     } else {
         return { success: false, error: result.error };
@@ -59,6 +67,7 @@ async function logout() {
     
     setCurrentUser(null);
     updateUIForLoggedOutUser();
+    hideActiveRentalBanner();
     showStatus('You have been logged out.', 'info');
 }
 

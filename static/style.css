@@ -1392,3 +1392,173 @@ body {
     font-size: 0.9em;
     margin-top: 4px;
 }
+
+/* ===========================================
+   PRICING CARD
+   =========================================== */
+
+.pricing-card {
+    background: linear-gradient(145deg, #1a2744, #1e2a4a);
+    border: 1px solid rgba(0, 217, 255, 0.3);
+}
+
+.pricing-card h2 {
+    color: #00d9ff;
+    margin-bottom: 15px;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+}
+
+.price-item {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px 8px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.price-label {
+    display: block;
+    font-size: 0.75em;
+    color: #8892b0;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.price-value {
+    display: block;
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #00d9ff;
+}
+
+.pricing-note {
+    text-align: center;
+    font-size: 0.8em;
+    color: #43e97b;
+    margin-top: 12px;
+    font-style: italic;
+}
+
+/* ===========================================
+   ACTIVE RENTAL CARD
+   =========================================== */
+
+.active-rental-card {
+    background: linear-gradient(145deg, #2a1a44, #1e2a4a);
+    border: 2px solid #f093fb;
+    animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+    0%, 100% { border-color: #f093fb; }
+    50% { border-color: #00d9ff; }
+}
+
+.active-rental-card h2 {
+    color: #f093fb;
+}
+
+.active-rental-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.rental-detail {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.rental-detail.highlight {
+    background: rgba(0, 217, 255, 0.15);
+    border: 1px solid rgba(0, 217, 255, 0.3);
+}
+
+.detail-label {
+    display: block;
+    font-size: 0.75em;
+    color: #8892b0;
+    text-transform: uppercase;
+}
+
+.detail-value {
+    display: block;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #ccd6f6;
+}
+
+.rental-detail.highlight .detail-value {
+    color: #00d9ff;
+    font-size: 1.3em;
+}
+
+/* ===========================================
+   RENTAL RECEIPT MODAL
+   =========================================== */
+
+.rental-receipt {
+    background: linear-gradient(145deg, #1a1a2e, #16213e);
+    border-radius: 16px;
+    padding: 25px;
+    max-width: 400px;
+}
+
+.receipt-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.receipt-header h3 {
+    color: #43e97b;
+    font-size: 1.5em;
+    margin-bottom: 5px;
+}
+
+.receipt-txn {
+    color: #8892b0;
+    font-size: 0.85em;
+}
+
+.receipt-body {
+    margin-bottom: 20px;
+}
+
+.receipt-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
+}
+
+.receipt-row.total {
+    border-top: 2px solid rgba(0, 217, 255, 0.3);
+    border-bottom: none;
+    margin-top: 10px;
+    padding-top: 15px;
+}
+
+.receipt-row.total .receipt-value {
+    color: #00d9ff;
+    font-size: 1.4em;
+    font-weight: 700;
+}
+
+.receipt-label {
+    color: #8892b0;
+}
+
+.receipt-value {
+    color: #ccd6f6;
+    font-weight: 600;
+}

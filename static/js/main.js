@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
     enableMapClickSearch();
     checkAuthStatus();
     viewAllScooters();
+    loadPricingInfo();
+    
+    // Check for active rental after auth check completes
+    setTimeout(() => {
+        if (isLoggedIn()) {
+            checkActiveRental();
+        }
+    }, 500);
     
     // ==================
     // SEARCH TABS
@@ -286,6 +294,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const lat = parseFloat(document.getElementById('endLat').value);
         const lng = parseFloat(document.getElementById('endLng').value);
         endReservation(scooterId, lat, lng);
+    });
+    
+    // End active rental button
+    document.getElementById('endActiveRentalBtn')?.addEventListener('click', () => {
+        endActiveRental();
     });
     
     document.getElementById('useEndLocationBtn').addEventListener('click', () => {

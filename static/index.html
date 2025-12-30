@@ -334,6 +334,58 @@
                     </div>
                 </div>
 
+                <!-- Pricing Info Card -->
+                <div class="card pricing-card">
+                    <h2>💰 Rental Pricing</h2>
+                    <div id="pricingInfo" class="pricing-grid">
+                        <div class="price-item">
+                            <span class="price-label">Unlock</span>
+                            <span class="price-value" id="priceUnlock">$1.00</span>
+                        </div>
+                        <div class="price-item">
+                            <span class="price-label">Hourly</span>
+                            <span class="price-value" id="priceHourly">$3.50/hr</span>
+                        </div>
+                        <div class="price-item">
+                            <span class="price-label">Daily</span>
+                            <span class="price-value" id="priceDaily">$25/day</span>
+                        </div>
+                        <div class="price-item">
+                            <span class="price-label">Weekly</span>
+                            <span class="price-value" id="priceWeekly">$99/wk</span>
+                        </div>
+                        <div class="price-item">
+                            <span class="price-label">Monthly</span>
+                            <span class="price-value" id="priceMonthly">$299/mo</span>
+                        </div>
+                    </div>
+                    <p class="pricing-note">Best rate automatically applied!</p>
+                </div>
+
+                <!-- Active Rental Banner (shown when user has active rental) -->
+                <div id="activeRentalBanner" class="card active-rental-card hidden">
+                    <h2>🛴 Active Rental</h2>
+                    <div class="active-rental-info">
+                        <div class="rental-detail">
+                            <span class="detail-label">Scooter:</span>
+                            <span class="detail-value" id="activeScooterId">-</span>
+                        </div>
+                        <div class="rental-detail">
+                            <span class="detail-label">Started:</span>
+                            <span class="detail-value" id="activeStartTime">-</span>
+                        </div>
+                        <div class="rental-detail">
+                            <span class="detail-label">Duration:</span>
+                            <span class="detail-value" id="activeDuration">-</span>
+                        </div>
+                        <div class="rental-detail highlight">
+                            <span class="detail-label">Est. Cost:</span>
+                            <span class="detail-value" id="activeEstCost">$0.00</span>
+                        </div>
+                    </div>
+                    <button id="endActiveRentalBtn" class="btn btn-warning">End Rental Now</button>
+                </div>
+
                 <!-- Reserve Section (requires login) -->
                 <div id="reserveSection" class="card renter-feature">
                     <h2>🔒 Reserve Scooter</h2>

@@ -30,6 +30,45 @@ MAX_SCOOTER_ID_LENGTH = 100
 MIN_PASSWORD_LENGTH = 6
 MAX_PAYLOAD_SIZE = 10 * 1024 * 1024  # 10MB
 
+# ===========================================
+# RENTAL PRICING CONFIGURATION
+# ===========================================
+# All prices in USD
+
+# Base unlock fee (charged at start of every rental)
+RENTAL_UNLOCK_FEE = 1.00
+
+# Hourly rate (for rentals under 24 hours)
+RENTAL_HOURLY_RATE = 3.50
+RENTAL_MIN_CHARGE_MINUTES = 15  # Minimum billing increment
+
+# Daily rate (24-hour period, better than 24 x hourly)
+RENTAL_DAILY_RATE = 25.00
+
+# Multi-day rates (discounted)
+RENTAL_MULTIDAY_RATES = {
+    2: 45.00,   # 2 days - 10% off
+    3: 63.00,   # 3 days - 16% off
+    4: 80.00,   # 4 days - 20% off
+    5: 95.00,   # 5 days - 24% off
+    6: 108.00,  # 6 days - 28% off
+}
+
+# Weekly rate (7 days)
+RENTAL_WEEKLY_RATE = 99.00  # ~$14/day, 43% off daily rate
+
+# Monthly rate (30 days)
+RENTAL_MONTHLY_RATE = 299.00  # ~$10/day, 60% off daily rate
+
+# Maximum rental duration (days)
+RENTAL_MAX_DURATION_DAYS = 30
+
+# Grace period (minutes) - no charge for very short accidental unlocks
+RENTAL_GRACE_PERIOD_MINUTES = 2
+
+# MongoDB Collection for rentals
+RENTALS_COLLECTION = 'rentals'
+
 # Legacy file-based DB (for migration)
 DB_FILE = 'scooter_db.json'
 DB_BACKUP_DIR = 'db_backups'
