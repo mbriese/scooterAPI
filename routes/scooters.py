@@ -18,7 +18,7 @@ from utils.responses import (
 )
 from utils.pricing import calculate_rental_cost, get_pricing_info
 from utils.payment import simulate_charge, generate_receipt
-from utils.auth import login_required
+from utils.auth import login_required, renter_required
 from config import ROLE_RENTER
 
 logger = logging.getLogger(__name__)
@@ -126,9 +126,9 @@ def search():
 
 
 @scooters_bp.route('/reservation/start', methods=['GET', 'POST'])
-@login_required
+@renter_required
 def start_reservation():
-    """Start a reservation for a scooter (requires login)"""
+    """Start a reservation for a scooter (renter only)"""
     logger.info(f"Request received: {request.method} /reservation/start - params: {dict(request.args)}")
     
     user_id = session.get('user_id')
@@ -225,9 +225,9 @@ def start_reservation():
 
 
 @scooters_bp.route('/reservation/end', methods=['GET', 'POST'])
-@login_required
+@renter_required
 def end_reservation():
-    """End a reservation, calculate charges, and update scooter location"""
+    """End a reservation, calculate charges, and update scooter location (renter only)"""
     logger.info(f"Request received: {request.method} /reservation/end - params: {dict(request.args)}")
     
     user_id = session.get('user_id')
@@ -267,11 +267,11 @@ def end_reservation():
             logger.warning(f"Reservation end failed: Scooter {scooter_id} is not reserved")
             return validation_error(f"No reservation for scooter {scooter_id} presently exists.")
         
-        # Verify this user owns the rental (or is admin)
+        # Verify this user owns the rental
         rental_id = scooter.get('current_rental_id')
         rental = rentals.find_one({"id": rental_id}) if rental_id else None
         
-        if rental and rental.get('user_id') != user_id and session.get('role') != 'admin':
+        if rental and rental.get('user_id') != user_id:
             logger.warning(f"User {user_email} tried to end rental owned by {rental.get('user_email')}")
             return validation_error("You can only end your own rentals.")
         

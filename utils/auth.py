@@ -6,7 +6,7 @@ import logging
 from functools import wraps
 from flask import session, request
 from utils.responses import error_response
-from config import ROLE_ADMIN
+from config import ROLE_ADMIN, ROLE_RENTER
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +32,20 @@ def admin_required(f):
         if session.get('role') != ROLE_ADMIN:
             logger.warning(f"Non-admin access attempt to {request.path} by user {session.get('user_id')}")
             return error_response("Admin access required", 403)
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def renter_required(f):
+    """Decorator to require renter role for a route (excludes admin)"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            logger.warning(f"Unauthorized access attempt to {request.path}")
+            return error_response("Please log in to access this resource", 401)
+        if session.get('role') != ROLE_RENTER:
+            logger.warning(f"Non-renter access attempt to {request.path} by user {session.get('user_id')} (role: {session.get('role')})")
+            return error_response("Only renters can perform this action. Admins should use the admin panel.", 403)
         return f(*args, **kwargs)
     return decorated_function
 
@@ -64,6 +78,11 @@ def get_current_user_role():
 def is_admin():
     """Check if current user is an admin"""
     return session.get('role') == ROLE_ADMIN
+
+
+def is_renter():
+    """Check if current user is a renter"""
+    return session.get('role') == ROLE_RENTER
 
 
 def set_user_session(user):
