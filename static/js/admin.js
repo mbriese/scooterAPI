@@ -314,21 +314,41 @@ async function confirmMoveScooter() {
             lng += (Math.random() - 0.5) * 0.01;
         }
     } else {
-        // Moving by coordinates
-        lat = parseFloat(document.getElementById('moveLatInput').value);
-        lng = parseFloat(document.getElementById('moveLngInput').value);
+        // Moving by coordinates - use enhanced validation
+        const latInput = document.getElementById('moveLatInput');
+        const lngInput = document.getElementById('moveLngInput');
         
-        if (isNaN(lat) || isNaN(lng)) {
-            showStatus('Please enter valid coordinates', 'error');
+        const validation = validateCoordinates(latInput.value, lngInput.value, { checkUSBounds: true });
+        
+        if (!validation.valid) {
+            showStatus(validation.error, 'error');
+            if (validation.suggestions.length > 0) {
+                showStatus(`${validation.error} - ${validation.suggestions[0]}`, 'error');
+            }
+            // Highlight the problematic input
+            if (validation.error.toLowerCase().includes('latitude')) {
+                showValidationError(latInput, validation.error, validation.suggestions);
+            } else if (validation.error.toLowerCase().includes('longitude')) {
+                showValidationError(lngInput, validation.error, validation.suggestions);
+            } else {
+                showValidationError(latInput, validation.error, validation.suggestions);
+            }
             return;
         }
+        
+        lat = validation.lat;
+        lng = validation.lng;
+        
+        // Clear any previous validation errors
+        clearValidation(latInput);
+        clearValidation(lngInput);
     }
     
     // Call API to update scooter location
     const result = await apiPut(`/admin/scooters/${moveScooterId}`, { lat, lng });
     
     if (result.ok) {
-        showStatus(`Scooter ${moveScooterId} moved successfully!`, 'success');
+        showStatus(`Scooter ${moveScooterId} moved to (${lat.toFixed(4)}, ${lng.toFixed(4)})`, 'success');
         hideMoveScooterModal();
         loadFleet();
         viewAllScooters();

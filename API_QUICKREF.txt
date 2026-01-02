@@ -1,0 +1,173 @@
+========================================
+SCOOTER API - QUICK REFERENCE
+========================================
+
+BASE URL: http://localhost:5000
+
+========================================
+POWERSHELL COMMANDS (Copy & Paste)
+========================================
+
+# Setup session
+$s = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+
+# AUTHENTICATION
+# ---------------
+# Register
+irm "http://localhost:5000/auth/register" -Method POST -ContentType "application/json" -Body '{"email":"test@test.com","password":"test123","name":"Test"}' -WebSession $s
+
+# Login (as renter)
+irm "http://localhost:5000/auth/login" -Method POST -ContentType "application/json" -Body '{"email":"test@test.com","password":"test123"}' -WebSession $s
+
+# Login (as admin)
+irm "http://localhost:5000/auth/login" -Method POST -ContentType "application/json" -Body '{"email":"admin@scooter.com","password":"admin123"}' -WebSession $s
+
+# Who am I?
+irm "http://localhost:5000/auth/me" -WebSession $s
+
+# Logout
+irm "http://localhost:5000/auth/logout" -Method POST -WebSession $s
+
+
+# SCOOTERS (Public)
+# -----------------
+# View all available
+irm "http://localhost:5000/view_all_available"
+
+# Search near location (Austin, TX)
+irm "http://localhost:5000/search?lat=30.2672&lng=-97.7431&radius=5000"
+
+# Get pricing
+irm "http://localhost:5000/pricing"
+
+
+# RESERVATIONS (Renter Only)
+# --------------------------
+# Start reservation
+irm "http://localhost:5000/reservation/start?id=SCO001" -Method POST -WebSession $s
+
+# End reservation
+irm "http://localhost:5000/reservation/end?id=SCO001&lat=30.27&lng=-97.74" -Method POST -WebSession $s
+
+# Check active rental
+irm "http://localhost:5000/rentals/active" -WebSession $s
+
+# Rental history
+irm "http://localhost:5000/rentals/history" -WebSession $s
+
+
+# ADMIN ONLY
+# ----------
+# Get all scooters
+irm "http://localhost:5000/admin/scooters" -WebSession $s
+
+# Add scooter
+irm "http://localhost:5000/admin/scooters" -Method POST -ContentType "application/json" -Body '{"id":"NEW-001","lat":30.2672,"lng":-97.7431}' -WebSession $s
+
+# Move scooter
+irm "http://localhost:5000/admin/scooters/SCO001" -Method PUT -ContentType "application/json" -Body '{"lat":30.28,"lng":-97.75}' -WebSession $s
+
+# Release scooter
+irm "http://localhost:5000/admin/scooters/SCO001/release" -Method PUT -WebSession $s
+
+# Delete scooter
+irm "http://localhost:5000/admin/scooters/SCO001" -Method DELETE -WebSession $s
+
+# Get all users
+irm "http://localhost:5000/admin/users" -WebSession $s
+
+# Revenue report
+irm "http://localhost:5000/admin/reports/revenue" -WebSession $s
+
+
+========================================
+CURL COMMANDS (Linux/Mac/Git Bash)
+========================================
+
+# Store cookies
+export COOKIE="cookies.txt"
+
+# Register
+curl -c $COOKIE -X POST http://localhost:5000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","password":"test123","name":"Test"}'
+
+# Login
+curl -c $COOKIE -b $COOKIE -X POST http://localhost:5000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","password":"test123"}'
+
+# View scooters
+curl -b $COOKIE http://localhost:5000/view_all_available
+
+# Search
+curl -b $COOKIE "http://localhost:5000/search?lat=30.2672&lng=-97.7431&radius=5000"
+
+# Start reservation
+curl -b $COOKIE -X POST "http://localhost:5000/reservation/start?id=SCO001"
+
+# End reservation
+curl -b $COOKIE -X POST "http://localhost:5000/reservation/end?id=SCO001&lat=30.27&lng=-97.74"
+
+
+========================================
+TEST USERS
+========================================
+
+Admin:
+  Email: admin@scooter.com
+  Password: admin123
+
+Renter (create your own or use existing):
+  Email: minnie@scooter.com
+  Password: test123
+
+
+========================================
+VALIDATION RULES
+========================================
+
+Coordinates:
+  - Latitude: -90 to 90
+  - Longitude: -180 to 180
+  - (0,0) is BLOCKED (Null Island)
+  - Must be in US for scooter placement
+
+Scooter ID:
+  - Letters, numbers, dash, underscore only
+  - No spaces or special characters
+  - Max 100 characters
+
+Password:
+  - Minimum 6 characters
+  - Maximum 128 characters
+
+Email:
+  - Valid format required
+  - Converted to lowercase
+
+
+========================================
+ERROR CODES
+========================================
+
+200 = Success
+201 = Created
+401 = Not logged in
+403 = Permission denied
+404 = Not found
+422 = Validation error (check your input!)
+500 = Server error
+
+
+========================================
+SECURITY BLOCKED
+========================================
+
+These inputs are BLOCKED:
+  - $where, $gt, $ne (MongoDB operators)
+  - <script>, javascript: (XSS)
+  - onclick=, onerror= (XSS)
+  - {} or [] as field values (injection)
+
+

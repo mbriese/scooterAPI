@@ -10,7 +10,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import errors as mongo_errors
 
 from models.database import get_users_collection
-from utils.validators import validate_email, validate_password, validate_required_fields
+from utils.validators import (
+    validate_email, validate_password, validate_required_fields,
+    validate_request_json, sanitize_string
+)
 from utils.responses import (
     success_response, error_response, created_response,
     validation_error, unauthorized_response, server_error_response
@@ -34,12 +37,18 @@ def register():
         if not data:
             return validation_error("Request body must be JSON")
         
+        # Security: Validate and sanitize request body
+        is_valid, result = validate_request_json(data, allowed_fields=['email', 'password', 'name'])
+        if not is_valid:
+            logger.warning(f"Security: Invalid registration request: {result}")
+            return validation_error(result)
+        
         # Validate required fields
         is_valid, missing = validate_required_fields(data, ['email', 'password', 'name'])
         if not is_valid:
             return validation_error(f"Missing required fields: {', '.join(missing)}")
         
-        # Validate email
+        # Validate email (includes security sanitization)
         is_valid, result = validate_email(data['email'])
         if not is_valid:
             return validation_error(result)
@@ -51,9 +60,15 @@ def register():
             return validation_error(result)
         password = data['password']
         
-        name = data['name'].strip()
+        # Validate and sanitize name
+        is_valid, result = sanitize_string(data['name'], "Name")
+        if not is_valid:
+            return validation_error(result)
+        name = result.strip() if result else ""
         if not name:
             return validation_error("Name cannot be empty")
+        if len(name) > 100:
+            return validation_error("Name is too long (max 100 characters)")
         
         users = get_users_collection()
         

@@ -245,7 +245,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.getElementById('newScooterForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        const id = document.getElementById('newScooterId').value;
+        const id = document.getElementById('newScooterId').value.trim();
+        
+        // Validate scooter ID
+        if (!id) {
+            showStatus('Please enter a scooter ID', 'error');
+            return;
+        }
         
         // Check which tab is active
         const cityTabActive = document.getElementById('addCityTab').classList.contains('active');
@@ -272,16 +278,38 @@ document.addEventListener('DOMContentLoaded', () => {
             
             addScooter(id, lat, lng);
         } else {
-            // Add by coordinates
-            const lat = parseFloat(document.getElementById('newScooterLat').value);
-            const lng = parseFloat(document.getElementById('newScooterLng').value);
+            // Add by coordinates - use enhanced validation
+            const latInput = document.getElementById('newScooterLat');
+            const lngInput = document.getElementById('newScooterLng');
             
-            if (isNaN(lat) || isNaN(lng)) {
-                showStatus('Please enter valid coordinates', 'error');
+            const validation = validateCoordinates(latInput.value, lngInput.value, { checkUSBounds: true });
+            
+            if (!validation.valid) {
+                // Show detailed error with suggestions
+                let errorMsg = validation.error;
+                if (validation.suggestions.length > 0) {
+                    errorMsg += ` (${validation.suggestions[0]})`;
+                }
+                showStatus(errorMsg, 'error');
+                
+                // Highlight problematic input
+                if (validation.error.toLowerCase().includes('latitude')) {
+                    showValidationError(latInput, validation.error, validation.suggestions);
+                    clearValidation(lngInput);
+                } else if (validation.error.toLowerCase().includes('longitude')) {
+                    showValidationError(lngInput, validation.error, validation.suggestions);
+                    clearValidation(latInput);
+                } else {
+                    showValidationError(latInput, validation.error, validation.suggestions);
+                }
                 return;
             }
             
-            addScooter(id, lat, lng);
+            // Clear validation styling
+            clearValidation(latInput);
+            clearValidation(lngInput);
+            
+            addScooter(id, validation.lat, validation.lng);
         }
     });
     

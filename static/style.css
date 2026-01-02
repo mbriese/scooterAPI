@@ -2305,3 +2305,120 @@ body {
 .error-text {
     color: #f5576c;
 }
+
+/* ===========================================
+   COORDINATE VALIDATION STYLES
+   =========================================== */
+
+/* Input validation states */
+input.validation-error,
+textarea.validation-error {
+    border-color: #f5576c !important;
+    background: rgba(245, 87, 108, 0.1) !important;
+    box-shadow: 0 0 0 2px rgba(245, 87, 108, 0.2);
+}
+
+input.validation-success,
+textarea.validation-success {
+    border-color: #00c851 !important;
+    background: rgba(0, 200, 81, 0.1) !important;
+    box-shadow: 0 0 0 2px rgba(0, 200, 81, 0.2);
+}
+
+/* Validation message container */
+.validation-message {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: rgba(245, 87, 108, 0.1);
+    border-left: 3px solid #f5576c;
+    font-size: 0.85rem;
+}
+
+.validation-message .error-text {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.validation-message .suggestions {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+}
+
+.validation-message .suggestions li {
+    color: #8892b0;
+    font-size: 0.8rem;
+    padding: 4px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.validation-message .suggestions li:first-child {
+    border-top: none;
+}
+
+/* Coordinate input group */
+.coord-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.coord-input-group .coord-field {
+    flex: 1;
+}
+
+.coord-input-group label {
+    display: block;
+    font-size: 0.75rem;
+    color: #8892b0;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.coord-input-group input {
+    width: 100%;
+}
+
+/* Coordinate preview */
+.coord-preview {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(100, 255, 218, 0.1);
+    border-radius: 6px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    color: #64ffda;
+}
+
+.coord-preview.invalid {
+    background: rgba(245, 87, 108, 0.1);
+    color: #f5576c;
+}
+
+/* Inline validation indicator */
+.input-with-validation {
+    position: relative;
+}
+
+.input-with-validation .validation-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+}
+
+/* Helpful hints */
+.coord-hint {
+    font-size: 0.75rem;
+    color: #8892b0;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.coord-hint.example {
+    color: #64ffda;
+}

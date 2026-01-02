@@ -7,7 +7,10 @@ from flask import Blueprint, request, session
 from pymongo import errors as mongo_errors
 
 from models.database import get_users_collection, get_scooters_collection
-from utils.validators import validate_coordinates, validate_required_fields
+from utils.validators import (
+    validate_coordinates, validate_required_fields, 
+    validate_scooter_id, validate_request_json, sanitize_string
+)
 from utils.responses import (
     success_response, created_response, validation_error,
     not_found_response, server_error_response
@@ -113,18 +116,29 @@ def manage_scooters():
         if not data:
             return validation_error("Request body must be JSON")
         
+        # Security: Validate and sanitize request body
+        is_valid, result = validate_request_json(data, allowed_fields=['id', 'lat', 'lng'])
+        if not is_valid:
+            logger.warning(f"Security: Invalid request body from {session.get('email')}: {result}")
+            return validation_error(result)
+        
         # Validate required fields
         is_valid, missing = validate_required_fields(data, ['id', 'lat', 'lng'])
         if not is_valid:
             return validation_error(f"Missing required fields: {', '.join(missing)}")
         
-        # Validate coordinates
-        is_valid, result = validate_coordinates(data['lat'], data['lng'])
+        # Validate scooter ID (includes security sanitization)
+        is_valid, result = validate_scooter_id(data['id'])
+        if not is_valid:
+            return validation_error(result)
+        scooter_id = result
+        
+        # Validate coordinates (with US bounds check for scooter placement)
+        is_valid, result = validate_coordinates(data['lat'], data['lng'], check_us_bounds=True)
         if not is_valid:
             return validation_error(result)
         
         lat, lng = result
-        scooter_id = str(data['id']).strip()
         
         new_scooter = {
             'id': scooter_id,
@@ -152,6 +166,13 @@ def manage_scooters():
 @admin_required
 def force_release_scooter(scooter_id):
     """Force release a reserved scooter (admin only)"""
+    # Security: Validate scooter ID from URL
+    is_valid, result = validate_scooter_id(scooter_id)
+    if not is_valid:
+        logger.warning(f"Security: Invalid scooter ID in URL: {scooter_id}")
+        return validation_error(result)
+    scooter_id = result
+    
     logger.info(f"Request received: PUT /admin/scooters/{scooter_id}/release (admin: {session.get('email')})")
     
     try:
@@ -184,6 +205,13 @@ def force_release_scooter(scooter_id):
 @admin_required
 def delete_scooter(scooter_id):
     """Delete a scooter from the fleet (admin only)"""
+    # Security: Validate scooter ID from URL
+    is_valid, result = validate_scooter_id(scooter_id)
+    if not is_valid:
+        logger.warning(f"Security: Invalid scooter ID in URL: {scooter_id}")
+        return validation_error(result)
+    scooter_id = result
+    
     logger.info(f"Request received: DELETE /admin/scooters/{scooter_id} (admin: {session.get('email')})")
     
     try:
@@ -214,12 +242,25 @@ def delete_scooter(scooter_id):
 @admin_required
 def update_scooter(scooter_id):
     """Update a scooter's details (admin only)"""
+    # Security: Validate scooter ID from URL
+    is_valid, result = validate_scooter_id(scooter_id)
+    if not is_valid:
+        logger.warning(f"Security: Invalid scooter ID in URL: {scooter_id}")
+        return validation_error(result)
+    scooter_id = result
+    
     logger.info(f"Request received: PUT /admin/scooters/{scooter_id} (admin: {session.get('email')})")
     
     try:
         data = request.get_json()
         if not data:
             return validation_error("Request body must be JSON")
+        
+        # Security: Validate and sanitize request body
+        is_valid, result = validate_request_json(data, allowed_fields=['lat', 'lng'])
+        if not is_valid:
+            logger.warning(f"Security: Invalid request body: {result}")
+            return validation_error(result)
         
         collection = get_scooters_collection()
         
@@ -232,7 +273,7 @@ def update_scooter(scooter_id):
         update_fields = {}
         
         if 'lat' in data and 'lng' in data:
-            is_valid, result = validate_coordinates(data['lat'], data['lng'])
+            is_valid, result = validate_coordinates(data['lat'], data['lng'], check_us_bounds=True)
             if not is_valid:
                 return validation_error(result)
             update_fields['lat'], update_fields['lng'] = result

@@ -6,6 +6,25 @@
  * Search for scooters at a location
  */
 async function searchScooters(lat, lng, radius) {
+    // Validate coordinates before making API call
+    const coordValidation = validateCoordinates(lat, lng);
+    if (!coordValidation.valid) {
+        showStatus(`Invalid coordinates: ${coordValidation.error}`, 'error');
+        return;
+    }
+    
+    // Validate radius
+    const radiusValidation = validateRadius(radius);
+    if (!radiusValidation.valid) {
+        showStatus(`Invalid radius: ${radiusValidation.error}`, 'error');
+        return;
+    }
+    
+    // Use validated values
+    lat = coordValidation.lat;
+    lng = coordValidation.lng;
+    radius = radiusValidation.radius;
+    
     showStatus('Searching for scooters...', 'info');
     
     const result = await apiGet(`/search?lat=${lat}&lng=${lng}&radius=${radius}`);
